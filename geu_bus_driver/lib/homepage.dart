@@ -8,6 +8,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  var busNo = 15;
+  var driverName = "Mia Khalifa";
+  var phoneNumber = "6969696969";
+  var boxColor = Colors.green[300];
+  var altBoxColor = Colors.red[300];
+  var boxWord = "START";
+  var altBoxWord = "END";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,27 +32,36 @@ class _HomePageState extends State<HomePage> {
         Container(
           decoration: BoxDecoration(color: Colors.black38),
         ),
-        Container(
-          child: Column(
-            children: [Text("Bus No")],
-          ),
+        Column(
+          children: [
+            Text("Bus No"),
+            Text(busNo.toString()),
+            Text("Name"),
+            Text(driverName),
+            Text("Phone Number"),
+            Text(phoneNumber),
+          ],
         ),
+        Container(
+            padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+            height: 30,
+            width: double.infinity,
+            decoration: BoxDecoration(color: boxColor),
+            alignment: Alignment.bottomCenter,
+            child: TextButton(
+              child: Text(boxWord),
+              onPressed: () {
+                setState(() {
+                  var x = boxColor;
+                  boxColor = altBoxColor;
+                  altBoxColor = x;
+                  var y = boxWord;
+                  boxWord = altBoxWord;
+                  altBoxWord = y;
+                });
+              },
+            )),
       ],
-    )
-        // body: Container(
-        //   decoration: BoxDecoration(
-        //     image: DecorationImage(
-        //       image: AssetImage("assets/graphic_era.jpg"),
-        //       fit: BoxFit.cover,
-        //     ),
-        //   ),
-        //   child: SafeArea(
-        //     child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-        //       Text(
-        //           "Bus No dfsvjhkbhuk kfgdggggggggggggggggggggggggggggggggggsebkrbher")
-        //     ]),
-        //   ),
-        // ),
-        );
+    ));
   }
 }
