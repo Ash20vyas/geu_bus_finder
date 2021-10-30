@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "311030353135",
+    "project_id": "buss-ab96a",
+    "storage_bucket": "buss-ab96a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:311030353135:android:ac26f650d82ad7a2041f1a",
+        "android_client_info": {
+          "package_name": "com.valno.geu_bus_driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "311030353135-llsna8bv53eg6be9makttulahbludjte.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.valno.geu_bus_driver",
+            "certificate_hash": "21024efc687e028ffbd55f15bd2d6ff1ea7574af"
+          }
+        },
+        {
+          "client_id": "311030353135-rumv6mud4b5973ek8p352g7r9umc4j7g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrP5ZLojdd-NsCE_kUvB_MK969F9gfv2o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "311030353135-rumv6mud4b5973ek8p352g7r9umc4j7g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
