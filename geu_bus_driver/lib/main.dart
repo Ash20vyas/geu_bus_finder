@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geu_bus_driver/loginpage.dart';
 
 import 'homescreen.dart';
 
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: HomeScreen(),
+      home: LoginPage(),
     );
   }
 }
