@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geu_bus_driver/designs.dart';
 class LoginPage extends StatefulWidget {
@@ -8,9 +9,41 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  String? phoneNumber;
+  void phoneNumberLogin() async{
+    if(phoneNumber!.length != 10){
+      final snackBar = SnackBar(content: Text('Invalid phone Number'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+    else{
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: "+91"+ phoneNumber.toString(),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          final snackBar = SnackBar(content: Text('Something went wrong'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        },
+        codeSent: (String verificationId, int? resendToken)async {
+          final snackBar = SnackBar(content: Text('Code sent!'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          String smsCode = 'xxxx';
+          PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
+
+          // Sign the user in (or link) with the credential
+          await  FirebaseAuth.instance.signInWithCredential(credential);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+    }
+
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -56,24 +89,32 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 child: Center(
                   child: TextField(
+                      onChanged: (value){
+                        phoneNumber = value;
+                      },
                       decoration: InputDecoration.collapsed(hintText: ""),
                       keyboardType: TextInputType.number,
                       style: poppins(black,h2,FontWeight.w600)
                   ),
                 ),
               ),
-              Container(
-                margin: EdgeInsets.only(left:15,right: 15,top: 30,bottom: 30),
-                height: 75,
-                width: 250,
-                decoration: BoxDecoration(
-                  color: boxRed,
-                  borderRadius: BorderRadius.circular(10)
-                ),
-                child: Center(
-                  child: Text(
-                    "Get OTP",
-                    style: montserrat(boxRedText,h2,FontWeight.w700) ,
+              InkWell(
+                onTap: (){
+                  phoneNumberLogin();
+                },
+                child: Container(
+                  margin: EdgeInsets.only(left:15,right: 15,top: 30,bottom: 30),
+                  height: 75,
+                  width: 250,
+                  decoration: BoxDecoration(
+                    color: boxRed,
+                    borderRadius: BorderRadius.circular(10)
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Get OTP",
+                      style: montserrat(boxRedText,h2,FontWeight.w700) ,
+                    ),
                   ),
                 ),
               )
