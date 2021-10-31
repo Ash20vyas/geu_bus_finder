@@ -16,7 +16,6 @@ class _HomePageState extends State<HomePage> {
   var driverName = "Salman\nKhan";
   var phoneNumber = "1234567890";
   bool isChecked = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,9 +138,13 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// ignore: must_be_immutable
 class SubHeading extends StatelessWidget {
   String value;
-  SubHeading({required this.value, Key? key}) : super(key: key);
+  SubHeading({
+    Key? key,
+    required this.value,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +160,13 @@ class SubHeading extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class Heading extends StatelessWidget {
   String value;
-  Heading({required this.value, Key? key}) : super(key: key);
+  Heading({
+    Key? key,
+    required this.value,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -176,9 +183,13 @@ class Heading extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class NumHeading extends StatelessWidget {
   String value;
-  NumHeading({required this.value, Key? key}) : super(key: key);
+  NumHeading({
+    Key? key,
+    required this.value,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
