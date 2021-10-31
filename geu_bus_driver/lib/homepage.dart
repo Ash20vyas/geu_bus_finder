@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:geu_bus_driver/designs.dart';
+import 'dart:math';
 
 bool isStarted = false;
 
@@ -15,7 +19,63 @@ class _HomePageState extends State<HomePage> {
   var busNo = 15;
   var driverName = "Salman\nKhan";
   var phoneNumber = "1234567890";
+  var dist = 0.0;
   bool isChecked = false;
+  bool isFuckingLoading = false;
+  Position currentPosition = Position(
+    latitude: 30.270317568668297,
+    longitude: 77.99668594373146,
+    timestamp: DateTime.now(),
+    altitude: 0,
+    speed: 0,
+    accuracy: 1,
+    heading: 0,
+    speedAccuracy: 0,
+  );
+  var timer;
+  var count = 0;
+  double distance = 0.0;
+  _getCurrentLocation() async {
+    var serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    var permission = await Geolocator.checkPermission();
+    timer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      if (isStarted) {
+        await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.best)
+            .then((Position position) async {
+          Position temp = currentPosition;
+          currentPosition = position;
+          count++;
+          double _coordinateDistance(lat1, lon1, lat2, lon2) {
+            var p = 0.017453292519943295;
+            var c = cos;
+            var a = 0.5 -
+                c((lat2 - lat1) * p) / 2 +
+                c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+            return 1000 * 12742 * asin(sqrt(a));
+          }
+
+          distance += _coordinateDistance(
+            temp.latitude,
+            temp.longitude,
+            currentPosition.latitude,
+            currentPosition.longitude,
+          );
+          if (distance > 2) {
+            dist = distance;
+            distance = 0.0;
+            setState(() {});
+          }
+        }).catchError((e) {
+          print(e);
+        });
+      }
+      if (!isStarted) {
+        timer.cancel();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,6 +174,7 @@ class _HomePageState extends State<HomePage> {
                     if (isChecked) {
                       setState(() {
                         isStarted = !isStarted;
+                        _getCurrentLocation();
                       });
                     } else {
                       final snackBar = SnackBar(

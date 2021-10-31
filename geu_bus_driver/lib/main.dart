@@ -8,7 +8,6 @@ import 'package:geu_bus_driver/loginpage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await Geolocator.requestPermission();
   runApp(const MyApp());
 }
 
