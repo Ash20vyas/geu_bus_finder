@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geu_bus_driver/designs.dart';
+import 'package:hive/hive.dart';
 
 import 'homepage.dart';
 class LoginPage extends StatefulWidget {
@@ -13,15 +14,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String? phoneNumber;
   var _codeController = TextEditingController();
-
-
-  void showDialog() {
-
-  }
-
-
-
-
   void loginUser(String phone, BuildContext context) async{
     FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -33,15 +25,22 @@ class _LoginPageState extends State<LoginPage> {
           var result = await _auth.signInWithCredential(credential);
           var user = result.user;
           if(user != null){
+            var b= Hive.box('login');
+            b.put('login',true);
             Navigator.pop(context);
             Navigator.pop(context);
             Navigator.push(context,MaterialPageRoute(builder:(context)=> HomePage()));
           }else{
-            print("Error");
+            final snackBar = SnackBar(
+                backgroundColor: Colors.red,
+                content: Text('Error has occurred. Please retry again.',style: montserrat(black,h3,FontWeight.w600),));
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
           }
         },
-        verificationFailed: (var exception){
-          print(exception);
+        verificationFailed: (var exception){ final snackBar = SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Error has occurred. Please retry again.',style: montserrat(black,h3,FontWeight.w600),));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
         },
         codeSent: (String verificationId,forceResendingToken){
           showGeneralDialog(
@@ -93,11 +92,22 @@ class _LoginPageState extends State<LoginPage> {
                               var result = await _auth.signInWithCredential(credential);
                               var user = result.user;
                               if(user != null){
+                                var b= Hive.box('login');
+                                b.put('login',true);
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                                 Navigator.push(context,MaterialPageRoute(builder:(context)=> HomePage()));
+
+                                final snackBar = SnackBar(
+                                    backgroundColor: Colors.green,
+                                    content: Text('Successfully logged in',style: montserrat(black,h3,FontWeight.w600),));
+                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
                               }else{
-                                print("Error");
+                                final snackBar = SnackBar(
+                                    backgroundColor: Colors.red,
+                                    content: Text('Error has occurred. Please retry again.',style: montserrat(black,h3,FontWeight.w600),));
+                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
                               }
                             },
                           )
@@ -134,7 +144,6 @@ class _LoginPageState extends State<LoginPage> {
         codeAutoRetrievalTimeout:(_){}
     );
   }
-
 
 
   @override
