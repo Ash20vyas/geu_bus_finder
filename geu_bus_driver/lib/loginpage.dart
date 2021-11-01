@@ -26,11 +26,14 @@ class _LoginPageState extends State<LoginPage> {
           var user = result.user;
           if(user != null){
             var b= Hive.box('login');
+            print("Sumseccfuly logged in");
             b.put('login',true);
             Navigator.pop(context);
             Navigator.pop(context);
             Navigator.push(context,MaterialPageRoute(builder:(context)=> HomePage()));
           }else{
+            Navigator.pop(context);
+
             final snackBar = SnackBar(
                 backgroundColor: Colors.red,
                 content: Text('Error has occurred. Please retry again.',style: montserrat(black,h3,FontWeight.w600),));
@@ -97,13 +100,14 @@ class _LoginPageState extends State<LoginPage> {
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                                 Navigator.push(context,MaterialPageRoute(builder:(context)=> HomePage()));
-
+                                print("Sumseccfuly logged in");
                                 final snackBar = SnackBar(
                                     backgroundColor: Colors.green,
                                     content: Text('Successfully logged in',style: montserrat(black,h3,FontWeight.w600),));
                                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
                               }else{
+                                Navigator.pop(context);
                                 final snackBar = SnackBar(
                                     backgroundColor: Colors.red,
                                     content: Text('Error has occurred. Please retry again.',style: montserrat(black,h3,FontWeight.w600),));
