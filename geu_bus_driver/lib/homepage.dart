@@ -4,7 +4,10 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geu_bus_driver/designs.dart';
+import 'package:geu_bus_driver/firebasemodel.dart';
 import 'dart:math';
+
+import 'main.dart';
 
 bool isStarted = false;
 
@@ -16,24 +19,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var busNo = 15;
-  var driverName = "Salman\nKhan";
-  var phoneNumber = "1234567890";
+  Data d = Data();
+  var busNo = 400;
+  var driverName = "Ashutosh Vyas";
+  var phoneNumber = "9149117784";
   var dist = 0.0;
+  double total = 0.0;
   bool isChecked = false;
   bool isFuckingLoading = false;
-  Position currentPosition = Position(
-    latitude: 30.270317568668297,
-    longitude: 77.99668594373146,
-    timestamp: DateTime.now(),
-    altitude: 0,
-    speed: 0,
-    accuracy: 1,
-    heading: 0,
-    speedAccuracy: 0,
-  );
+
+  Position? currentPosition;
   var timer;
-  var count = 0;
   double distance = 0.0;
   _getCurrentLocation() async {
     var serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -41,11 +37,11 @@ class _HomePageState extends State<HomePage> {
     timer = Timer.periodic(Duration(seconds: 5), (timer) async {
       if (isStarted) {
         await Geolocator.getCurrentPosition(
-                desiredAccuracy: LocationAccuracy.best)
+                desiredAccuracy: LocationAccuracy.bestForNavigation)
             .then((Position position) async {
-          Position temp = currentPosition;
+          Position? temp = currentPosition;
+          print(temp);
           currentPosition = position;
-          count++;
           double _coordinateDistance(lat1, lon1, lat2, lon2) {
             var p = 0.017453292519943295;
             var c = cos;
@@ -56,14 +52,22 @@ class _HomePageState extends State<HomePage> {
           }
 
           distance += _coordinateDistance(
-            temp.latitude,
+            temp!.latitude,
             temp.longitude,
-            currentPosition.latitude,
-            currentPosition.longitude,
+            currentPosition!.latitude,
+            currentPosition!.longitude,
           );
           if (distance > 2) {
             dist = distance;
+            total += dist;
             distance = 0.0;
+            d.busNo = busNo;
+            d.driverName = driverName;
+            d.phoneNumber = phoneNumber;
+            d.latitude = currentPosition!.latitude;
+            d.longitude = currentPosition!.longitude;
+            d.total = total;
+            await model.updateData(d);
             setState(() {});
           }
         }).catchError((e) {
@@ -107,6 +111,8 @@ class _HomePageState extends State<HomePage> {
             Heading(value: driverName),
             SubHeading(value: "Phone Number"),
             NumHeading(value: phoneNumber),
+            SubHeading(value: "Total"),
+            Heading(value: total.toString()),
           ],
         ),
         Column(

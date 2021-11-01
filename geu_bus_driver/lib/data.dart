@@ -23,6 +23,48 @@ var busData = [
     ]
   },
   {
+    'reg_num': 'UK07DF 6969',
+    'bus': 400,
+    'start time': '7.10 AM',
+    'driver': 9149117784,
+    'stops': [
+      'Kulhal I, Dehradun, India',
+      'Harbatpur Chowk, Dehradun, India',
+      'Langa Road, Dehradun, India',
+      'Shaspur, Dehradun, India',
+      'Selaqui, Dehradun, India',
+      'Sudhowala, Dehradun, India',
+      'Nanda Ki Chowki, Dehradun, India',
+      'Premnagar, Dehradun, India',
+      'Panditwari, Dehradun, India',
+      'Vasan Vihar, Dehradun, India',
+      'Baliwala Chowk, Dehradun, India',
+      'GMS Road, Dehradun, India',
+      'Geu, Dehradun, India'
+    ]
+  },
+  {
+    'reg_num': 'UK07DF 6969',
+    'bus': 69,
+    'start time': '7.10 AM',
+    'driver': 9347994899,
+    'stops': [
+      'Kulhal I, Dehradun, India',
+      'Harbatpur Chowk, Dehradun, India',
+      'Langa Road, Dehradun, India',
+      'Shaspur, Dehradun, India',
+      'Selaqui, Dehradun, India',
+      'Sudhowala, Dehradun, India',
+      'Nanda Ki Chowki, Dehradun, India',
+      'Premnagar, Dehradun, India',
+      'Panditwari, Dehradun, India',
+      'Vasan Vihar, Dehradun, India',
+      'Baliwala Chowk, Dehradun, India',
+      'GMS Road, Dehradun, India',
+      'Geu, Dehradun, India'
+    ]
+  },
+  {
     'reg_num': 'UK 07 PA2623',
     'bus': 34,
     'start time': '7.35 AM',
