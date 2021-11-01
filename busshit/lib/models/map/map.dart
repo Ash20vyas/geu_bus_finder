@@ -3,6 +3,8 @@ import 'dart:developer';
 
 import 'package:busshit/designs/design.dart';
 import 'package:busshit/models/appbar/topbar.dart';
+import 'package:busshit/models/bus/firebasemodel.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,8 +55,31 @@ class _HomePageState extends State<HomePage> {
     mapController!.setMapStyle(style);
   }
   bool isFuckingLoading = false;
- _getCurrentLocation() async {
+  late Stream buses;
 
+  getBusLocation(){
+   FirebaseFirestore.instance.collection('root').snapshots()
+        .listen((QuerySnapshot querySnapshot){
+          markers = {};
+      querySnapshot.docs.forEach((document){
+        Data d = Data();
+        d.latitude = document['latitude'];
+        d.longitude = document['longitude'];
+        print(d.latitude);
+        print(d.longitude);
+        setState(() {
+          markers.add(d.createmarker());
+        });
+
+      });
+    }
+    );
+
+  }
+
+
+
+ _getCurrentLocation() async {
    setState(() {
      isFuckingLoading = true;
    });
@@ -64,9 +89,6 @@ class _HomePageState extends State<HomePage> {
      icon:BitmapDescriptor.defaultMarker,
    );
    markers.add(startMarker);
-
-
-
    var serviceEnabled = await Geolocator.isLocationServiceEnabled();
    var permission = await Geolocator.checkPermission();
    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
@@ -90,7 +112,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     _getCurrentLocation();
-    slave();
+    getBusLocation();
     super.initState();
   }
 
