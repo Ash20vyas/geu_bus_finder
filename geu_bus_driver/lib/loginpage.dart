@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
         codeSent: (String verificationId,forceResendingToken){
           showGeneralDialog(
             barrierLabel: "Barrier",
-            barrierDismissible: true,
+            barrierDismissible: false,
             barrierColor: Colors.black.withOpacity(0.15),
             transitionDuration: Duration(milliseconds: 450),
             context: context,

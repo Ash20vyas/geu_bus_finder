@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "311030353135-cbdni5c1novdp862pfvd44r9edeliarp.apps.googleusercontent.com",
+          "client_id": "311030353135-25n07n7imf2hfv6fc0psj2hl98s97rkv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.valno.geu_bus_driver",
+            "certificate_hash": "53d64884140c2256d6aa2a4d6511a31d5e739d03"
+          }
+        },
+        {
+          "client_id": "311030353135-nnrus0nhorlg9ma93j6i8j12edhg1u2f.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.valno.geu_bus_driver",
