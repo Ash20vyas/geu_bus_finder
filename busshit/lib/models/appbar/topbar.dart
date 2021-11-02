@@ -50,11 +50,11 @@ class _TopbarState extends State<Topbar> {
               Container(
                   alignment: Alignment.bottomLeft,
                   margin: const EdgeInsets.only(left: 15,right: 15),
-                  child: Text("15 minutes away",style: poppins(Colors.green,h1,FontWeight.w600),)),
+                  child: Text(activeBuses[0].time.toString().split(".").first   + " minutes away",style: poppins(Colors.green,h1,FontWeight.w600),)),
               Container(
                 height: 50,
                 width: 50,
-                margin: const EdgeInsets.only(right: 15,left: 15),
+                margin: const EdgeInsets.only(right: 15),
                 decoration: BoxDecoration(
                   color: pink,
                     border: Border.all(color: Colors.grey.shade300,width: 1),
@@ -109,7 +109,7 @@ class _TopbarState extends State<Topbar> {
                         Icon(Icons.bus_alert_rounded,color: foreground,),
                         Container(
                           margin: const EdgeInsets.only(left: 5),
-                          child: Text("Bus No. 15",style: tt(foreground,h4,FontWeight.w600),),
+                          child: Text("Bus No. "+activeBuses[0].busNo.toString(),style: tt(foreground,h4,FontWeight.w600),),
                         ),
                       ],
                     ),
@@ -130,7 +130,7 @@ class _TopbarState extends State<Topbar> {
                         Icon(Icons.contacts_rounded,color: foreground,),
                         Container(
                           margin: const EdgeInsets.only(left: 5),
-                          child: Text("Salman khan",style: tt(foreground,h4,FontWeight.w600),),
+                          child: Text(activeBuses[0].driverName.toString().split(" ").first,style: tt(foreground,h4,FontWeight.w600),),
                         ),
                       ],
                     ),

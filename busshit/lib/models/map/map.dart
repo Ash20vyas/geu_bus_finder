@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:math';
 
 import 'package:busshit/designs/design.dart';
 import 'package:busshit/models/appbar/topbar.dart';
@@ -8,6 +10,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animarker/core/ripple_marker.dart';
+import 'package:flutter_animarker/widgets/animarker.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,9 +19,18 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../data.dart';
 
 bool showStatus = true;
+var busicon;
+var university;
 GoogleMapController? mapController;
-Position currentPosition = Position(latitude:30.270317568668297,longitude: 77.99668594373146,timestamp: DateTime.now(),altitude: 0, speed: 0, accuracy: 1, heading: 0, speedAccuracy: 0,);
+Position collegePosition = Position(latitude:30.270317568668297,longitude: 77.99668594373146,timestamp: DateTime.now(),altitude: 0, speed: 0, accuracy: 1, heading: 0, speedAccuracy: 0,);
+var currentPosition;
 var maptype =MapType.normal;
+var activeBuses = List<dynamic>.generate(10,(i)=> null);
+
+
+
+
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -29,25 +42,9 @@ class _HomePageState extends State<HomePage> {
  final CameraPosition _initialLocation =  const CameraPosition(
       target: LatLng(30.270317568668297, 77.99668594373146), zoom: 5);
 
- Set<Marker> markers = {};
-
- String startCoordinatesString = '(${currentPosition.latitude}, ${currentPosition.longitude})';
+ final markers = <MarkerId, Marker>{};
 
 
-
-  slave() async {
-   var l = [];
-   for(int i=0;i<stops.length;i++){
-     var x = await locationFromAddress(stops[i]);
-     var m = {
-       '"stop"': '"'+stops[i]+'"',
-       '"loc"' : [x[0].latitude , x[0].longitude]
-     };
-    l.add(m);
-   }
-   log(l.toString());
-
- }
 
 
  themeLoader() async {
@@ -55,23 +52,28 @@ class _HomePageState extends State<HomePage> {
     mapController!.setMapStyle(style);
   }
   bool isFuckingLoading = false;
-  late Stream buses;
-
-
-
-
-
  _getCurrentLocation() async {
       //loading screen on
        setState(() {
          isFuckingLoading = true;
        });
-       Marker startMarker = Marker(
-         markerId: MarkerId('(${currentPosition.latitude}, ${currentPosition.longitude})'),
-         position: LatLng(currentPosition.latitude,currentPosition.longitude),
-         icon:BitmapDescriptor.defaultMarker,
+       await BitmapDescriptor.fromAssetImage(
+           ImageConfiguration(size: Size(16, 16)), 'assets/bus.png')
+           .then((onValue) {
+         busicon = onValue;
+       });
+      await BitmapDescriptor.fromAssetImage(
+           ImageConfiguration(size: Size(48, 48)), 'assets/uni.png')
+           .then((onValue) {
+         university = onValue;
+       });
+       Marker startMarker = RippleMarker(
+         markerId: MarkerId('(${collegePosition.latitude}, ${collegePosition.longitude})'),
+         position: LatLng(collegePosition.latitude,collegePosition.longitude),
+         icon:university,
+         ripple: false
        );
-       markers.add(startMarker);
+       markers[MarkerId('(${collegePosition.latitude}, ${collegePosition.longitude})')] = startMarker;
        var serviceEnabled = await Geolocator.isLocationServiceEnabled();
        var permission = await Geolocator.checkPermission();
        await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
@@ -83,21 +85,37 @@ class _HomePageState extends State<HomePage> {
        }).catchError((e) {
          print(e);
        });
+
        FirebaseFirestore.instance.collection('root').snapshots()
-           .listen((QuerySnapshot querySnapshot){
-         markers = {};
+           .listen((QuerySnapshot querySnapshot) async {
+
+             for(int i=0;i<querySnapshot.docs.length;i++){
+               var document = querySnapshot.docs[i];
+               Data d = Data();
+               d.phoneNumber = document['phoneNumber'];
+               d.busNo = document['busNo'];
+               d.driverName = document['driverName'];
+               d.latitude = document['latitude'];
+               d.longitude = document['longitude'];
+
+               double _coordinateDistance(lat1, lon1, lat2, lon2) {
+                 var p = 0.017453292519943295;
+                 var c = cos;
+                 var a = 0.5 -
+                     c((lat2 - lat1) * p) / 2 +
+                     c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+                 return 12742 * asin(sqrt(a));
+               }
+               var distance = _coordinateDistance(d.latitude, d.longitude, currentPosition.latitude, currentPosition.longitude);
+               var dist2 = _coordinateDistance(d.latitude,d.longitude, collegePosition.latitude, collegePosition.longitude);
+               d.time = (distance/30)*60;
+               d.collegeReachTime = d.time!.toDouble() + (((dist2)/30) * 60);
+               activeBuses[i] = d;
+               setState(() {
+                 markers[d.marker] = d.createmarker(context) ;
+               });
+             }
          querySnapshot.docs.forEach((document){
-           Data d = Data();
-           d.phoneNumber = document['phoneNumber'];
-           d.busNo = document['busNo'];
-           d.driverName = document['driverName'];
-           d.latitude = document['latitude'];
-           d.longitude = document['longitude'];
-           print(d.latitude);
-           print(d.longitude);
-           setState(() {
-             markers.add(d.createmarker(context));
-           });
 
          });
        }
@@ -113,13 +131,13 @@ class _HomePageState extends State<HomePage> {
  @override
   void initState() {
     // TODO: implement initState
-    _getCurrentLocation();
+   _getCurrentLocation();
     super.initState();
   }
 
 
 
-
+ final controller = Completer<GoogleMapController>();
   @override
   Widget build(BuildContext context) {
 
@@ -138,29 +156,38 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height,
                     width: MediaQuery.of(context).size.width,
-                    child: GoogleMap(
-                      initialCameraPosition: _initialLocation,
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: false,
-                      mapType: maptype,
-                      zoomGesturesEnabled: true,
-                      minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
-                      zoomControlsEnabled: false,
-                      markers: markers,
-                      onCameraMove: (_) {
-                        setState(() {
-                          showStatus = false;
-                        });
-                      },
-                      onCameraIdle: () {
-                        setState(() {
-                          showStatus = true;
-                        });
-                      },
-                      onMapCreated: (GoogleMapController controller) {
-                        mapController = controller;
-                        themeLoader();
-                      },
+                    child: Animarker(
+                      useRotation : false,
+                      rippleRadius: 0.5,  //[0,1.0] range, how big is the circle
+                      rippleColor: darkBlue, // Color of fade ripple circle
+                      rippleDuration: Duration(milliseconds: 2500),
+                      curve: Curves.ease,
+                      mapId: controller.future.then<int>((value) => value.mapId), //Grab Google Map Id
+                      markers: markers.values.toSet(),
+                      child: GoogleMap(
+                        initialCameraPosition: _initialLocation,
+                        myLocationEnabled: true,
+                        myLocationButtonEnabled: false,
+                        mapType: maptype,
+                        zoomGesturesEnabled: true,
+                        minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
+                        zoomControlsEnabled: false,
+                        onCameraMove: (_) {
+                          setState(() {
+                            showStatus = false;
+                          });
+                        },
+                        onCameraIdle: () {
+                          setState(() {
+                            showStatus = true;
+                          });
+                        },
+                        onMapCreated: (GoogleMapController controller) {
+                          this.controller.complete(controller);
+                          mapController = controller;
+                          themeLoader();
+                        },
+                      ),
                     ),
                   ),
                   Container(
@@ -288,7 +315,7 @@ class _HomePageState extends State<HomePage> {
                           Container(
                             margin: const EdgeInsets.only(left: 5),
                             child: Text(
-                              "1234567890",
+                              activeBuses[0].phoneNumber.toString(),
                               style: tt(foreground, h4, FontWeight.w600),
                             ),
                           ),
@@ -310,7 +337,7 @@ class _HomePageState extends State<HomePage> {
                         margin:
                         const EdgeInsets.only(left: 15, right: 15, bottom: 20),
                         child: Text(
-                          "30 Minutes",
+                          activeBuses[0].collegeReachTime.toString().split(".").first + " Minutes",
                           style: tt(
                               darkBlue, h2, FontWeight.w600),
                         )),
@@ -325,12 +352,12 @@ class _HomePageState extends State<HomePage> {
                         )),
                     OtherBuses(
                       number: 1,
-                      busNumber: "Bus no. 12",
+                      busNumber: activeBuses[1] ?? "No Bus Found",
                     ),
-                    OtherBuses(number: 2, busNumber: "Bus no. 6"),
+                    OtherBuses(number: 2, busNumber: activeBuses[2]  ?? "No Bus Found"),
                     OtherBuses(
                       number: 3,
-                      busNumber: "Bus no. 19",
+                      busNumber: activeBuses[2] ?? "No Bus Found",
                     )
                   ],
                 ),

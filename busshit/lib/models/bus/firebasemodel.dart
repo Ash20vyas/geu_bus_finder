@@ -4,6 +4,7 @@ import 'package:busshit/models/map/map.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animarker/core/ripple_marker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Data {
@@ -13,7 +14,9 @@ class Data {
   late double latitude;
   late double longitude;
   late double total;
-  String? time;
+  late MarkerId marker = MarkerId(busNo.toString());
+  double? time;
+  double? collegeReachTime;
   //data goes to cloud in the form of map. so creating a map before is a efficient process
   createMap() {
     return {
@@ -25,11 +28,11 @@ class Data {
       "total": total,
     };
   }
-  Marker createmarker(BuildContext context){
-    Marker startMarker = Marker(
-      markerId: MarkerId('(${latitude}, $longitude)'),
+  Marker createmarker(BuildContext context)  {
+    Marker startMarker = RippleMarker(
+      markerId: MarkerId(busNo.toString()),
       position: LatLng(latitude,longitude),
-      icon:BitmapDescriptor.defaultMarker,
+      icon:busicon,
       onTap: (){
         showGeneralDialog(
           barrierLabel: "Barrier",
@@ -42,7 +45,7 @@ class Data {
               alignment: Alignment.topCenter,
               child: Material(
                 child: Container(
-                  height: 270,
+                  height: 300,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
