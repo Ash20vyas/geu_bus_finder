@@ -7,6 +7,7 @@ class Bus{
   late int _busNumber;
   late String _driverName;
   late String _phoneNumber;
+  late String _timeTaken;
 }
 
 class Stop{

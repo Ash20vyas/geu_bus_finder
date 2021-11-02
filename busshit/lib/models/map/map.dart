@@ -57,52 +57,54 @@ class _HomePageState extends State<HomePage> {
   bool isFuckingLoading = false;
   late Stream buses;
 
-  getBusLocation(){
-   FirebaseFirestore.instance.collection('root').snapshots()
-        .listen((QuerySnapshot querySnapshot){
-          markers = {};
-      querySnapshot.docs.forEach((document){
-        Data d = Data();
-        d.latitude = document['latitude'];
-        d.longitude = document['longitude'];
-        print(d.latitude);
-        print(d.longitude);
-        setState(() {
-          markers.add(d.createmarker());
-        });
 
-      });
-    }
-    );
-
-  }
 
 
 
  _getCurrentLocation() async {
-   setState(() {
-     isFuckingLoading = true;
-   });
-   Marker startMarker = Marker(
-     markerId: MarkerId('(${currentPosition.latitude}, ${currentPosition.longitude})'),
-     position: LatLng(currentPosition.latitude,currentPosition.longitude),
-     icon:BitmapDescriptor.defaultMarker,
-   );
-   markers.add(startMarker);
-   var serviceEnabled = await Geolocator.isLocationServiceEnabled();
-   var permission = await Geolocator.checkPermission();
-   await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
-       .then((Position position) async {
-     setState(() {
-       currentPosition = position;
-       print('CURRENT POS: $currentPosition');
-     });
-   }).catchError((e) {
-     print(e);
-   });
-   setState(() {
-     isFuckingLoading = false;
-   });
+      //loading screen on
+       setState(() {
+         isFuckingLoading = true;
+       });
+       Marker startMarker = Marker(
+         markerId: MarkerId('(${currentPosition.latitude}, ${currentPosition.longitude})'),
+         position: LatLng(currentPosition.latitude,currentPosition.longitude),
+         icon:BitmapDescriptor.defaultMarker,
+       );
+       markers.add(startMarker);
+       var serviceEnabled = await Geolocator.isLocationServiceEnabled();
+       var permission = await Geolocator.checkPermission();
+       await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+           .then((Position position) async {
+         setState(() {
+           currentPosition = position;
+           print('CURRENT POS: $currentPosition');
+         });
+       }).catchError((e) {
+         print(e);
+       });
+       FirebaseFirestore.instance.collection('root').snapshots()
+           .listen((QuerySnapshot querySnapshot){
+         markers = {};
+         querySnapshot.docs.forEach((document){
+           Data d = Data();
+           d.phoneNumber = document['phoneNumber'];
+           d.busNo = document['busNo'];
+           d.driverName = document['driverName'];
+           d.latitude = document['latitude'];
+           d.longitude = document['longitude'];
+           print(d.latitude);
+           print(d.longitude);
+           setState(() {
+             markers.add(d.createmarker(context));
+           });
+
+         });
+       }
+       );
+       setState(() {
+         isFuckingLoading = false;
+       });
  }
 
 
@@ -112,7 +114,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     _getCurrentLocation();
-    getBusLocation();
     super.initState();
   }
 
