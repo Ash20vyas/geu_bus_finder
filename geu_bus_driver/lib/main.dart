@@ -4,26 +4,32 @@ import 'package:geu_bus_driver/firebasemodel.dart';
 import 'package:geu_bus_driver/homepage.dart';
 import 'package:geu_bus_driver/loginpage.dart';
 import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-
 
 FirebaseModal model = FirebaseModal();
 
-
-bool t =false ;
+var t;
 void main() async {
-  await Hive.initFlutter();
+  Hive.init(await getApplicationDocumentsDirectory().toString());
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  var box = await Hive.openBox('login');
-  t = box.get('login') ?? false;
+  Hive.boxExists('login').then((value) {
+    if (value) {
+      var b = Hive.box('login');
+      t = b.get('login');
+    } else {
+      Hive.openBox('login');
+      var b = Hive.box('login');
+      b.put('login', false);
+      t = false;
+    }
+  });
+
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
-
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +38,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home:t ?HomePage():LoginPage(),
+      home: t ? HomePage() : LoginPage(),
     );
   }
 }
