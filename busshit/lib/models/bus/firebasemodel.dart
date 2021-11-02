@@ -42,7 +42,7 @@ class Data {
               alignment: Alignment.topCenter,
               child: Material(
                 child: Container(
-                  height: 250,
+                  height: 270,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -61,6 +61,15 @@ class Data {
                     margin:const EdgeInsets.only(top: 40,left:15,right:15),
                     child: Column(
                       children: [
+                        Container(
+                            alignment: Alignment.bottomLeft,
+                            margin: const EdgeInsets.only(left: 15,right: 15,top: 10),
+                            child: Text("Next Stop",style: tt(foreground.withOpacity(0.5),h6,FontWeight.w600),)),
+                        Container(
+                            alignment: Alignment.bottomLeft,
+                            margin: const EdgeInsets.only(left: 15,right: 15,),
+                            child: Text("Rajput Road Randikhana",style: tt(Colors.green,h2,FontWeight.w600),)),
+
                         Container(
                             alignment: Alignment.bottomLeft,
                             margin: const EdgeInsets.only(left: 15,right: 15,top: 10),
@@ -106,7 +115,7 @@ class Data {
                                       Icon(Icons.contacts_rounded,color: foreground,),
                                       Container(
                                         margin: const EdgeInsets.only(left: 5),
-                                        child: Text(driverName.toString(),style: tt(foreground,h4,FontWeight.w600),),
+                                        child: Text(driverName.split(" ").first,style: tt(foreground,h4,FontWeight.w600),),
                                       ),
                                     ],
                                   ),
@@ -148,7 +157,7 @@ class Data {
           },
           transitionBuilder: (_, anim, __, child) {
             return SlideTransition(
-              position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
+              position: Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim),
               child: child,
             );
           },

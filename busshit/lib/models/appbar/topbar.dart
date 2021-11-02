@@ -50,7 +50,7 @@ class _TopbarState extends State<Topbar> {
               Container(
                   alignment: Alignment.bottomLeft,
                   margin: const EdgeInsets.only(left: 15,right: 15),
-                  child: Text("15 minutes away",style: tt(Colors.green,h1,FontWeight.w600),)),
+                  child: Text("15 minutes away",style: poppins(Colors.green,h1,FontWeight.w600),)),
               Container(
                 height: 50,
                 width: 50,
@@ -89,7 +89,7 @@ class _TopbarState extends State<Topbar> {
           Container(
               alignment: Alignment.bottomLeft,
               margin: const EdgeInsets.only(left: 15,right: 15,top: 10),
-              child: Text("Bus Info".toUpperCase(),style: tt(foreground.withOpacity(0.5),h6,FontWeight.w600),)),
+              child: Text("Bus Info".toUpperCase(),style: tt(foreground.withOpacity(0.75),h6,FontWeight.w600),)),
           Container(
             margin: const EdgeInsets.only(top:10),
             child: Row(
@@ -100,14 +100,6 @@ class _TopbarState extends State<Topbar> {
                     margin: const EdgeInsets.only(left:15,right: 5),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: maptype == MapType.satellite ? Colors.grey.shade800: Colors.grey.shade200,
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
                       borderRadius: BorderRadius.circular(5),
                       border: Border.all(color: Colors.grey.shade400)
                     ),
@@ -129,14 +121,6 @@ class _TopbarState extends State<Topbar> {
                     margin: const EdgeInsets.only(right:15,left: 5),
                     decoration: BoxDecoration(
                         color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.shade100,
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
                         borderRadius: BorderRadius.circular(5),
                         border: Border.all(color: Colors.grey.shade400)
                     ),

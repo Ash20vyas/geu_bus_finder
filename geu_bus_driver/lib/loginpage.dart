@@ -12,11 +12,15 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String? phoneNumber;
+  String phoneNumber ="";
+  bool showLoadingScreen = false;
+  bool otpScreen = false;
   var _codeController = TextEditingController();
   void loginUser(String phone, BuildContext context) async{
     FirebaseAuth _auth = FirebaseAuth.instance;
-
+    setState(() {
+      showLoadingScreen = true;
+    });
     _auth.verifyPhoneNumber(
         phoneNumber: "+91" + phone,
         timeout: Duration(seconds: 60),
@@ -32,20 +36,31 @@ class _LoginPageState extends State<LoginPage> {
             Navigator.pop(context);
             Navigator.push(context,MaterialPageRoute(builder:(context)=> HomePage()));
           }else{
-            Navigator.pop(context);
 
+            Navigator.pop(context);
+            setState(() {
+              showLoadingScreen = false;
+            });
             final snackBar = SnackBar(
                 backgroundColor: Colors.red,
-                content: Text('Error has occurred. Please retry again.',style: montserrat(black,h3,FontWeight.w600),));
+                content: Text('Error has occurred. Please retry again.',style: montserrat(Colors.white,h4,FontWeight.w600),));
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           }
         },
-        verificationFailed: (var exception){ final snackBar = SnackBar(
+        verificationFailed: (var exception){
+          setState(() {
+            showLoadingScreen = false;
+          });
+          final snackBar = SnackBar(
             backgroundColor: Colors.red,
-            content: Text('Error has occurred. Please retry again.',style: montserrat(black,h3,FontWeight.w600),));
+            content: Text('Error has occurred. Please retry again.',style: montserrat(Colors.white,h4,FontWeight.w600),));
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         },
         codeSent: (String verificationId,forceResendingToken){
+          setState(() {
+            showLoadingScreen = false;
+            otpScreen = true;
+          });
           showGeneralDialog(
             barrierLabel: "Barrier",
             barrierDismissible: false,
@@ -55,15 +70,22 @@ class _LoginPageState extends State<LoginPage> {
             pageBuilder: (_, __, ___) {
               return Align(
                 alignment: Alignment.center,
-                child: Container(
-                  margin: EdgeInsets.all(15),
+                child: Material(
                   child: Container(
-                    height: 200,
-                    child: Material(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Container(
+                    height: 285,
+                    margin: EdgeInsets.all(15),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Material(
+                          child: Container(
+                            margin: EdgeInsets.all(15),
+                            alignment: Alignment.centerLeft,
+                            child: Text("Enter the One Time Password (OTP) received on your device.",style: montserrat(Colors.grey.shade600,h4,FontWeight.w500),),
+                          ),
+                        ),
+                        Material(
+                          child: Container(
                             padding: EdgeInsets.fromLTRB(15,5,15,5),
                             margin: EdgeInsets.all(15),
                             decoration: BoxDecoration(
@@ -71,17 +93,41 @@ class _LoginPageState extends State<LoginPage> {
                                 border: Border.all(color: Colors.red)
                             ),
                             child: TextField(
+                              style: montserrat(black,h3,FontWeight.bold),
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 labelText: "OTP",
+                                labelStyle: montserrat(black,h4,FontWeight.w600)
                               ),
                               controller: _codeController,
                             ),
                           ),
-                          InkWell(
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Material(
+                              child: Container(
+                                margin: EdgeInsets.only(left: 15,right:15,bottom: 10),
+                                child: InkWell(
+                                  onTap: (){
+                                    Navigator.pop(context);
+                                    loginUser(phone, context);
+                                  },
+                                  child: Text(
+                                    "Resend OTP?",
+                                    style: montserrat(Colors.blue,h5,FontWeight.w600),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(left: 15,right: 15,top: 15,bottom: 5),
+                          child: InkWell(
                             child: Container(
                                 height: 70,
-                                margin: EdgeInsets.only(left: 15,right: 15,top: 15,bottom: 5),
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                   borderRadius:BorderRadius.circular(10),
@@ -92,31 +138,46 @@ class _LoginPageState extends State<LoginPage> {
                             onTap: () async{
                               final code = _codeController.text.trim();
                               AuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: code);
-                              var result = await _auth.signInWithCredential(credential);
-                              var user = result.user;
-                              if(user != null){
-                                var b= Hive.box('login');
-                                b.put('login',true);
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                                Navigator.push(context,MaterialPageRoute(builder:(context)=> HomePage()));
-                                print("Sumseccfuly logged in");
-                                final snackBar = SnackBar(
-                                    backgroundColor: Colors.green,
-                                    content: Text('Successfully logged in',style: montserrat(black,h3,FontWeight.w600),));
-                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                              try{
+                                var result = await _auth.signInWithCredential(credential);
+                                var user = result.user;
+                                if(user != null){
+                                  var b= Hive.box('login');
+                                  b.put('login',true);
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                  Navigator.push(context,MaterialPageRoute(builder:(context)=> HomePage()));
+                                  print("Sumseccfuly logged in");
+                                  final snackBar = SnackBar(
+                                      backgroundColor: Colors.green,
+                                      content: Text('Successfully logged in',style: montserrat(Colors.white,h4,FontWeight.w600),));
+                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-                              }else{
+                                }else{
+                                  Navigator.pop(context);
+                                  final snackBar = SnackBar(
+                                      backgroundColor: Colors.red,
+                                      content: Text('Error has occurred. Please retry again.',style: montserrat(Colors.white,h4,FontWeight.w600),));
+                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                }
+                              }
+                              catch(e){
                                 Navigator.pop(context);
+                                setState(() {
+                                  otpScreen = false;
+                                });
                                 final snackBar = SnackBar(
                                     backgroundColor: Colors.red,
-                                    content: Text('Error has occurred. Please retry again.',style: montserrat(black,h3,FontWeight.w600),));
+                                    content: Text('Recheck your OTP',style: montserrat(Colors.white,h4,FontWeight.w600),));
                                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
                               }
+
+
                             },
-                          )
-                        ],
-                      ),
+                          ),
+                        )
+                      ],
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -146,7 +207,9 @@ class _LoginPageState extends State<LoginPage> {
           );
         },
         codeAutoRetrievalTimeout:(_){}
+
     );
+
   }
 
 
@@ -154,83 +217,98 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: !otpScreen,
       appBar: AppBar(
         backgroundColor: Colors.white,
         toolbarHeight: 3,
         elevation: 0,
       ),
-      body: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Logo(),
-              Container(
-                alignment: Alignment.centerLeft,
-                margin: EdgeInsets.only(left: 20,right: 20),
-                child: Text(
-                  "Phone number",
-                  style: poppins(black.withOpacity(0.75),h3,FontWeight.normal),
-                ),
-              ),
-              Container(
-                height: 50,
-                padding: EdgeInsets.all(5),
-                width: double.infinity,
-                margin: EdgeInsets.only(left: 20,right: 20),
-                decoration: BoxDecoration(
-                  color: textBoxColor,
-                  borderRadius:BorderRadius.circular(5),
-
-                ),
-                child: Center(
-                  child: TextField(
-                      onChanged: (value){
-                        phoneNumber = value;
-                      },
-                      decoration: InputDecoration.collapsed(hintText: ""),
-                      keyboardType: TextInputType.number,
-                      style: poppins(black,h2,FontWeight.w600)
+      body: AnimatedSwitcher(
+        duration: Duration(milliseconds: 350),
+        child: showLoadingScreen? Center(
+          child: CircularProgressIndicator(),
+        ):Stack(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Logo(),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  margin: EdgeInsets.only(left: 20,right: 20),
+                  child: Text(
+                    "Phone number",
+                    style: montserrat(black.withOpacity(0.75),h4,FontWeight.w600),
                   ),
                 ),
-              ),
-              InkWell(
-                onTap: (){
-                  loginUser(phoneNumber.toString(),context);
-                },
-                child: Container(
-                  margin: EdgeInsets.only(left:15,right: 15,top: 20,bottom: 30),
-                  height: 75,
-                  width: 200,
+                Container(
+                  height: 50,
+                  padding: EdgeInsets.all(5),
+                  width: double.infinity,
+                  margin: EdgeInsets.only(left: 20,right: 20),
                   decoration: BoxDecoration(
-                    color: boxRed,
-                    borderRadius: BorderRadius.circular(10)
+                    color: textBoxColor,
+                    borderRadius:BorderRadius.circular(5),
+
                   ),
                   child: Center(
-                    child: Text(
-                      "Get OTP",
-                      style: montserrat(boxRedText,h2,FontWeight.w700) ,
+                    child: TextField(
+                        onChanged: (value){
+                          phoneNumber = value;
+                        },
+                        decoration: InputDecoration.collapsed(hintText: ""),
+                        keyboardType: TextInputType.number,
+                        style: poppins(black,h2,FontWeight.w600)
                     ),
                   ),
                 ),
-              )
-            ],
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                height: 75,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: Image.asset('assets/a.png').image,
-                    scale: 0.5
-                  )
+                Container(
+                  margin: EdgeInsets.only(left:15,right: 15,top: 20,bottom: 30),
+                  child: InkWell(
+                    onTap: (){
+                      if(phoneNumber.length < 10){
+                        final snackBar = SnackBar(duration:Duration(milliseconds: 350),content: Text('Not a valid phone number!',style: montserrat(Colors.white,h4,FontWeight.normal),),backgroundColor: Colors.red,);
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                      else{
+                        loginUser(phoneNumber.toString(),context);
+                      }
+
+                    },
+                    child: Container(
+                      height: 55,
+                      width: 150,
+                      decoration: BoxDecoration(
+                        color: boxRed,
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Get OTP",
+                          style: montserrat(boxRedText,h3,FontWeight.w700) ,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  height: 55,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: Image.asset('assets/a.png').image,
+                      scale: 0.3
+                    )
+                  ),
                 ),
-              ),
-            ],
-          )
-        ],
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -247,10 +325,10 @@ class Logo extends StatelessWidget {
         child: RichText(
           text: TextSpan(
               text: 'GEU\n',
-              style: montserrat(black.withOpacity(0.5),h3,FontWeight.w600),
+              style: montserrat(black.withOpacity(0.4),h4,FontWeight.w600),
               children: <TextSpan>[
                 TextSpan(text: 'BUS\n',
-                  style: montserrat(logoRed,h1+40,FontWeight.bold),
+                  style: montserrat(Colors.red.shade900.withOpacity(0.85),h1+30,FontWeight.bold),
                 ),
                 TextSpan(text: 'FINDER\n',
                   style: montserrat(black,h1+50,FontWeight.bold),

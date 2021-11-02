@@ -4,26 +4,25 @@ import 'package:geu_bus_driver/firebasemodel.dart';
 import 'package:geu_bus_driver/homepage.dart';
 import 'package:geu_bus_driver/loginpage.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 FirebaseModal model = FirebaseModal();
 
-var t;
+
+
+var t ;
+
+
 void main() async {
-  Hive.init(await getApplicationDocumentsDirectory().toString());
+  await Hive.initFlutter();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  Hive.boxExists('login').then((value) {
-    if (value) {
-      var b = Hive.box('login');
-      t = b.get('login');
-    } else {
-      Hive.openBox('login');
-      var b = Hive.box('login');
-      b.put('login', false);
-      t = false;
-    }
-  });
+
+  var box = await Hive.openBox('login');
+  t = box.get('login') ?? false;
+
+
 
   runApp(MyApp());
 }

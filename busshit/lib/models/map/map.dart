@@ -163,27 +163,59 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    padding: EdgeInsets.only(left:15,right: 15,top: 1,bottom: 1),
+                    margin: EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade400),
+                      boxShadow: [
+                        BoxShadow(
+                          color: maptype == MapType.satellite ? Colors.grey.shade800: Colors.grey.shade300,
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 3), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: TextField(
+                        onChanged: (val){
+
+                        },
+                        style:poppins(Colors.grey.shade700,h3,FontWeight.w500) ,
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                          hintText: 'Search for stops,Buses',
+                          hintStyle: poppins(Colors.grey.shade400,h4,FontWeight.w500)
+                        ),
+                      ),
+                    ),
+                  ),
                   Align(
                     alignment: Alignment.topRight,
                     child: Container(
-                      margin:const EdgeInsets.only(right: 15,top:20),
+                      margin:const EdgeInsets.only(right: 15,top:80),
                       alignment: Alignment.topRight,
                       height: 50,
-                      width: 50,
+                      width: 100,
                       decoration: BoxDecoration(
                         borderRadius:BorderRadius.circular(10),
-                        color:pink.withOpacity(0.75),
+                        color:Colors.white,
                         border:Border.all(color: Colors.grey.shade400,width: 0.5),
                         boxShadow: [
                           BoxShadow(
-                            color: maptype == MapType.satellite ? Colors.grey.shade800: Colors.grey.shade200,
+                            color: maptype == MapType.satellite ? Colors.grey.shade800: Colors.grey.shade300,
                             spreadRadius: 5,
                             blurRadius: 7,
-                            offset: Offset(0, 3), // changes position of shadow
+                            offset: const Offset(0, 3), // changes position of shadow
                           ),
                         ],
                       ),
-                      child: Column(
+                      child: Row(
                         children: [
                           IconButton(
                             icon: Icon(Icons.satellite,size: 30,),
@@ -201,7 +233,17 @@ class _HomePageState extends State<HomePage> {
 
                               }
                             },
-                          )
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.book,size: 30,),
+                            onPressed: (){
+                              mapController!.animateCamera(
+                                CameraUpdate.newCameraPosition(
+                                    _initialLocation
+                                ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -211,7 +253,7 @@ class _HomePageState extends State<HomePage> {
 
 
               animationCurveExpand: Curves.bounceOut,
-              animationCurveContract: Curves.bounceIn,
+              animationCurveContract: Curves.ease,
               persistentHeader: const Topbar(),
 
 
@@ -263,50 +305,15 @@ class _HomePageState extends State<HomePage> {
                           style: tt(
                               foreground, h4, FontWeight.w600),
                         )),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                            alignment: Alignment.bottomLeft,
-                            margin:
-                            const EdgeInsets.only(left: 15, right: 15, bottom: 20),
-                            child: Text(
-                              "30 Minutes",
-                              style: tt(
-                                  darkBlue, h2, FontWeight.w600),
-                            )),
-                        Container(
-                          height: 50,
-                          width: 50,
-                          margin: const EdgeInsets.only(right: 15,left: 15),
-                          decoration: BoxDecoration(
-                              color: darkBlue,
-                              border: Border.all(color: Colors.grey.shade700,width: 1),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.shade100,
-                                  spreadRadius: 3,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 3), // changes position of shadow
-                                ),
-                              ],
-                              borderRadius:BorderRadius.circular(5)
-                          ),
-                          child: Center(
-                            child: IconButton(
-                              icon: Icon(Icons.home,color: pink,),
-                              onPressed: (){
-                                mapController!.animateCamera(
-                                  CameraUpdate.newCameraPosition(
-                                    _initialLocation
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
+                    Container(
+                        alignment: Alignment.bottomLeft,
+                        margin:
+                        const EdgeInsets.only(left: 15, right: 15, bottom: 20),
+                        child: Text(
+                          "30 Minutes",
+                          style: tt(
+                              darkBlue, h2, FontWeight.w600),
+                        )),
                     Container(
                         alignment: Alignment.bottomLeft,
                         margin:
