@@ -97,7 +97,8 @@ class _HomePageState extends State<HomePage> {
                d.driverName = document['driverName'];
                d.latitude = document['latitude'];
                d.longitude = document['longitude'];
-
+               List<Placemark> placemarks = await placemarkFromCoordinates(d.latitude, d.longitude);
+               d.areaName = placemarks[0].subLocality;
                double _coordinateDistance(lat1, lon1, lat2, lon2) {
                  var p = 0.017453292519943295;
                  var c = cos;
@@ -108,21 +109,19 @@ class _HomePageState extends State<HomePage> {
                }
                var distance = _coordinateDistance(d.latitude, d.longitude, currentPosition.latitude, currentPosition.longitude);
                var dist2 = _coordinateDistance(d.latitude,d.longitude, collegePosition.latitude, collegePosition.longitude);
-               d.time = (distance/30)*60;
-               d.collegeReachTime = d.time!.toDouble() + (((dist2)/30) * 60);
+               d.time = (distance/25)*60;
+               d.collegeReachTime = d.time!.toDouble() + (((dist2)/25) * 60);
                activeBuses[i] = d;
                setState(() {
                  markers[d.marker] = d.createmarker(context) ;
                });
              }
-         querySnapshot.docs.forEach((document){
-
-         });
+             setState(() {
+               isFuckingLoading = false;
+             });
        }
        );
-       setState(() {
-         isFuckingLoading = false;
-       });
+
  }
 
 
@@ -135,13 +134,14 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-
+  var searched = [];
 
  final controller = Completer<GoogleMapController>();
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: 0,
         backgroundColor: pink,
@@ -187,38 +187,6 @@ class _HomePageState extends State<HomePage> {
                           mapController = controller;
                           themeLoader();
                         },
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    height: 50,
-                    padding: EdgeInsets.only(left:15,right: 15,top: 1,bottom: 1),
-                    margin: EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey.shade400),
-                      boxShadow: [
-                        BoxShadow(
-                          color: maptype == MapType.satellite ? Colors.grey.shade800: Colors.grey.shade300,
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: Offset(0, 3), // changes position of shadow
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: TextField(
-                        onChanged: (val){
-
-                        },
-                        style:poppins(Colors.grey.shade700,h3,FontWeight.w500) ,
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                          hintText: 'Search for stops,Buses',
-                          hintStyle: poppins(Colors.grey.shade400,h4,FontWeight.w500)
-                        ),
                       ),
                     ),
                   ),
@@ -274,6 +242,124 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
+                  ),
+                  Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 50,
+                        padding: EdgeInsets.only(left:15,right: 15,top: 1,bottom: 1),
+                        margin: EdgeInsets.only(left:15,right: 15,top: 15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey.shade400),
+                          boxShadow: [
+                            BoxShadow(
+                              color: maptype == MapType.satellite ? Colors.grey.shade800: Colors.grey.shade300,
+                              spreadRadius: 5,
+                              blurRadius: 7,
+                              offset: Offset(0, 3), // changes position of shadow
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: TextField(
+                            onChanged: (val){
+                              if(val.length > 0){
+                                var temp = [];
+                                for(int i = 0; i<activeBuses.length;i++){
+                                  var bus = activeBuses[i];
+                                  if(bus != null && bus.busNo.toString().contains(val)){
+                                    print("===================IN LOOOP=====================");
+                                    temp.add(bus);
+                                  }
+                                }
+                                print(searched.length);
+                                setState(() {
+                                  searched = temp;
+                                });
+                              }
+                              else{
+                                setState(() {
+                                  searched = [];
+                                });
+
+                              }
+
+
+                            },
+                            style:poppins(Colors.grey.shade700,h3,FontWeight.w500) ,
+                            decoration: InputDecoration(
+                                border: InputBorder.none,
+                              hintText: 'Search for stops,Buses',
+                              hintStyle: poppins(Colors.grey.shade400,h4,FontWeight.w500)
+                            ),
+                          ),
+                        ),
+                      ),
+                      searched.isNotEmpty? Container(
+                        height: 300,
+                        margin: EdgeInsets.only(left:15,right: 15,top: 5),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: maptype == MapType.satellite ? Colors.grey.shade800: Colors.grey.shade300,
+                              spreadRadius: 5,
+                              blurRadius: 7,
+                              offset: Offset(0, 3), // changes position of shadow
+                            ),
+                          ],
+                        ),
+                        child: ListView.builder(
+                            itemCount: searched.length,
+                            itemBuilder: (context,index){
+                              return InkWell(
+                                onTap: (){
+
+                                  var x = CameraPosition(
+                                      target: LatLng(searched[index].latitude,searched[index].longitude), zoom: 14);
+                                  mapController!.animateCamera(
+                                    CameraUpdate.newCameraPosition(
+                                        x
+                                    ),
+                                  );
+                                  searched = [];
+
+                                },
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      alignment:Alignment.centerLeft,
+                                        margin: EdgeInsets.only(left:15,right:15,top: 10),
+                                        child: Text("Bus No. " + searched[index].busNo.toString(),style: tt(darkBlue,h3,FontWeight.bold),)),
+                                    Row(
+                                      children: [
+                                        Container(
+                                            alignment:Alignment.centerLeft,
+                                            margin: EdgeInsets.only(left:15,right:15),
+                                            child: Text(searched[index].areaName.toString() ,style: poppins(Colors.grey.shade700,h4,FontWeight.w500),)),
+
+                                        Container(
+                                            alignment:Alignment.centerLeft,
+                                            margin: EdgeInsets.only(left:15,right:15),
+                                            child: Text(searched[index].time.toString().split(".").first +" Minutes Away",style: poppins(Colors.grey.shade700,h4,FontWeight.w500),)),
+                                      ],
+                                    ),
+                                    Container(
+                                        margin: EdgeInsets.only(left:15),
+                                        child: Divider(color: Colors.grey.shade600,thickness: 0.5,))
+
+                                  ],
+                                ),
+                              );
+
+                        }),
+                      ):Container()
+                    ],
                   )
                 ],
               ),
