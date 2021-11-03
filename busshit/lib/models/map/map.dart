@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:busshit/designs/design.dart';
 import 'package:busshit/models/appbar/topbar.dart';
+import 'package:busshit/models/bus/busmodel.dart';
 import 'package:busshit/models/bus/firebasemodel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
@@ -21,6 +22,8 @@ import '../../data.dart';
 bool showStatus = true;
 var busicon;
 var university;
+var busstop;
+
 GoogleMapController? mapController;
 Position collegePosition = Position(latitude:30.270317568668297,longitude: 77.99668594373146,timestamp: DateTime.now(),altitude: 0, speed: 0, accuracy: 1, heading: 0, speedAccuracy: 0,);
 var currentPosition;
@@ -43,15 +46,24 @@ class _HomePageState extends State<HomePage> {
       target: LatLng(30.270317568668297, 77.99668594373146), zoom: 5);
 
  final markers = <MarkerId, Marker>{};
+ final stopsMarker = <MarkerId, Marker>{};
 
-
+  void stopPlotter(){
+    for(int i = 0; i < locations.length ; i++){
+      var map = locations[i];
+      Stop stop = Stop();
+      stop.objectFromMap(map);
+      markers[MarkerId(stop.address)] =  stop.createmarker(context);
+    }
+  }
 
 
  themeLoader() async {
     var style = await rootBundle.loadString("assets/live.json");
     mapController!.setMapStyle(style);
   }
-  bool isFuckingLoading = false;
+ bool isFuckingLoading = false;
+
  _getCurrentLocation() async {
       //loading screen on
        setState(() {
@@ -67,6 +79,12 @@ class _HomePageState extends State<HomePage> {
            .then((onValue) {
          university = onValue;
        });
+        await BitmapDescriptor.fromAssetImage(
+           ImageConfiguration(size: Size(48, 48)), 'assets/bus-stop.png')
+           .then((onValue) {
+         busstop = onValue;
+       });
+      
        Marker startMarker = RippleMarker(
          markerId: MarkerId('(${collegePosition.latitude}, ${collegePosition.longitude})'),
          position: LatLng(collegePosition.latitude,collegePosition.longitude),
@@ -85,7 +103,7 @@ class _HomePageState extends State<HomePage> {
        }).catchError((e) {
          print(e);
        });
-
+       stopPlotter();
        FirebaseFirestore.instance.collection('root').snapshots()
            .listen((QuerySnapshot querySnapshot) async {
 
@@ -298,7 +316,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      searched.isNotEmpty? Container(
+                      AnimatedSwitcher(duration: Duration(milliseconds: 350),
+                      child: searched.isNotEmpty? Container(
                         height: 300,
                         margin: EdgeInsets.only(left:15,right: 15,top: 5),
                         width: double.infinity,
@@ -358,7 +377,11 @@ class _HomePageState extends State<HomePage> {
                               );
 
                         }),
-                      ):Container()
+                      ):Container(height: 10,) ,
+                      
+                      
+                      )
+                     
                     ],
                   )
                 ],
@@ -368,9 +391,6 @@ class _HomePageState extends State<HomePage> {
               animationCurveExpand: Curves.bounceOut,
               animationCurveContract: Curves.ease,
               persistentHeader: const Topbar(),
-
-
-
               expandableContent: Container(
                 height: 400,
                 decoration: const BoxDecoration(color: Colors.white),
