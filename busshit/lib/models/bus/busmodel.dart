@@ -83,84 +83,119 @@ class Stop {
       context: context,
       pageBuilder: (_, __, ___) {
         return Align(
-            alignment: Alignment.center,
-            child: Material(
-              child: InkWell(
-                onTap: (){
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  height: 350,
-                  width: double.infinity,
-                  margin: EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade300,
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                    border: Border.all(color: Colors.grey.shade400),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
+            alignment: Alignment.topCenter,
+            child: Container(
+              margin: EdgeInsets.only(top:40,left:15,right:15),
+              child: Material(
+                child: InkWell(
+                  onTap: (){
+                    Navigator.pop(context);
+                  },
                   child: Container(
-                    margin: const EdgeInsets.only( left: 15, right: 15),
-                    child: ListView.builder(
-                        itemCount: buses.length,
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return Column(
-                              children: [
-                                Container(
-                                    alignment: Alignment.centerLeft,
-                                    margin: EdgeInsets.only(left: 15, right: 15),
-                                    child: Text(
-                                      address.split(",").first.toUpperCase(),
-                                      style: tt(foreground, h2, FontWeight.bold),
-                                    )),
-                                Container(
-                                    alignment: Alignment.centerLeft,
-                                    margin: EdgeInsets.only(left: 15, right: 15),
-                                    child: Text(
-                                      "Buses which go through here",
-                                      style: poppins(Colors.grey.shade600, h4,
-                                          FontWeight.w600),
-                                    )),
-                                InkWell(
-                                  onTap: () {},
-                                  child: Column(
-                                    children: [
-                                      box(buses[index].toString()),
-                                      Container(
-                                          margin: EdgeInsets.only(left: 15),
-                                          child: Divider(
-                                            color: Colors.grey.shade600,
-                                            thickness: 0.5,
-                                          ))
-                                    ],
+                    height: 350,
+                    width: double.infinity,
+
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.shade300,
+                          spreadRadius:6,
+                          blurRadius: 9,
+                          offset: Offset(0, 3), // changes position of shadow
+                        ),
+                      ],
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Container(
+                      margin: const EdgeInsets.only( left: 15, right: 15),
+                      child: ListView.builder(
+                          itemCount: buses.length,
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return Column(
+                                children: [
+                                  Container(
+                                      alignment: Alignment.centerLeft,
+                                      margin: EdgeInsets.only(left: 15, right: 15),
+                                      child: Text(
+                                        address.split(",").first.toUpperCase(),
+                                        style: tt(foreground, h2, FontWeight.bold),
+                                      )),
+                                  Container(
+                                      alignment: Alignment.centerLeft,
+                                      margin: EdgeInsets.only(left: 15, right: 15),
+                                      child: Text(
+                                        "Buses which go through here",
+                                        style: poppins(Colors.grey.shade600, h4,
+                                            FontWeight.w600),
+                                      )),
+                                  InkWell(
+                                    onTap: () {
+                                      print("===================");
+                                      print(buses[index].toString());
+                                      if(markers[MarkerId(buses[index].toString())] != null){
+                                        mapController!.animateCamera(
+                                          CameraUpdate.newCameraPosition(
+                                              CameraPosition(target: markers[MarkerId(buses[index].toString())]!.position)
+                                          ),
+                                        );
+                                      }
+                                      else{
+                                        final snackBar = SnackBar(
+                                          duration: Duration(milliseconds: 350),
+                                          content: Text('Bus not in service.',style: poppins(Colors.white,h3,FontWeight.w600),),backgroundColor: Colors.red,);
+                                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                      }
+                                    },
+                                    child: Column(
+                                      children: [
+                                        box(buses[index].toString()),
+                                        Container(
+                                            margin: EdgeInsets.only(left: 15),
+                                            child: Divider(
+                                              color: Colors.grey.shade600,
+                                              thickness: 0.5,
+                                            ))
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              );
+                            }
+                            return InkWell(
+                              onTap: () {
+                                print("===================");
+                                print(buses[index].toString());
+                                if(markers[MarkerId(buses[index].toString())] != null){
+                                  mapController!.animateCamera(
+                                    CameraUpdate.newCameraPosition(
+                                        CameraPosition(target: markers[MarkerId(buses[index].toString())]!.position)
+                                    ),
+                                  );
+                                }
+                                else{
+                                  final snackBar = SnackBar(
+                                    duration: Duration(milliseconds: 350),
+                                    content: Text('Bus not in service.',style: poppins(Colors.white,h3,FontWeight.w600),),backgroundColor: Colors.red,);
+                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                }
+                              },
+                              child: Column(
+                                children: [
+                                  box(buses[index].toString()),
+                                  Container(
+                                      margin: EdgeInsets.only(left: 15),
+                                      child: Divider(
+                                        color: Colors.grey.shade600,
+                                        thickness: 0.5,
+                                      ))
+                                ],
+                              ),
                             );
-                          }
-                          return InkWell(
-                            onTap: () {},
-                            child: Column(
-                              children: [
-                                box(buses[index].toString()),
-                                Container(
-                                    margin: EdgeInsets.only(left: 15),
-                                    child: Divider(
-                                      color: Colors.grey.shade600,
-                                      thickness: 0.5,
-                                    ))
-                              ],
-                            ),
-                          );
-                        }),
+                          }),
+                    ),
                   ),
                 ),
               ),

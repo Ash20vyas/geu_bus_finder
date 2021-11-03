@@ -28,8 +28,8 @@ GoogleMapController? mapController;
 Position collegePosition = Position(latitude:30.270317568668297,longitude: 77.99668594373146,timestamp: DateTime.now(),altitude: 0, speed: 0, accuracy: 1, heading: 0, speedAccuracy: 0,);
 var currentPosition;
 var maptype =MapType.normal;
-var activeBuses = List<dynamic>.generate(10,(i)=> null);
-
+var activeBuses = List<dynamic>.generate(100,(i)=> null);
+final markers = <MarkerId, Marker>{};
 
 
 
@@ -45,8 +45,8 @@ class _HomePageState extends State<HomePage> {
  final CameraPosition _initialLocation =  const CameraPosition(
       target: LatLng(30.270317568668297, 77.99668594373146), zoom: 5);
 
- final markers = <MarkerId, Marker>{};
- final stopsMarker = <MarkerId, Marker>{};
+
+
 
   void stopPlotter(){
     for(int i = 0; i < locations.length ; i++){
@@ -134,6 +134,7 @@ class _HomePageState extends State<HomePage> {
                  markers[d.marker] = d.createmarker(context) ;
                });
              }
+             activeBuses.sort((a, b) => a.time.compareTo(b.time));
              setState(() {
                isFuckingLoading = false;
              });
