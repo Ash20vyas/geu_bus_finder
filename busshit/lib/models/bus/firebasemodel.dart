@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'package:busshit/designs/design.dart';
 import 'package:busshit/models/map/map.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,7 +15,7 @@ class Data {
   late double total;
   String? areaName;
   late MarkerId marker = MarkerId(busNo.toString());
-  double? time;
+  double? time = 999999;
   double? collegeReachTime;
   //data goes to cloud in the form of map. so creating a map before is a efficient process
   createMap() {
@@ -37,45 +36,46 @@ class Data {
       barrierLabel: "Barrier",
       barrierDismissible: true,
       barrierColor: Colors.transparent,
-      transitionDuration: Duration(milliseconds: 450),
+      transitionDuration: const Duration(milliseconds: 450),
       context: context,
       pageBuilder: (_, __, ___) {
         return Align(
           alignment: Alignment.topCenter,
           child: Material(
             child: Container(
-              height: 300,
+              height: 285,
               width: double.infinity,
+              margin: EdgeInsets.only(left:15,right: 15),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.shade400,
+                    color: Colors.grey.shade300,
                     spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3), // changes position of shadow
+                    blurRadius: 9,
+                    offset: const Offset(0, 3), // changes position of shadow
                   ),
                 ],
                 border: Border.all(color: Colors.grey.shade400),
                 borderRadius: BorderRadius.circular(15),
               ),
               child:Container(
-                margin:const EdgeInsets.only(top: 40,left:15,right:15),
+                margin: const EdgeInsets.only( left: 5, right: 5,top: 20,bottom: 20),
                 child: Column(
                   children: [
                     Container(
                         alignment: Alignment.bottomLeft,
                         margin: const EdgeInsets.only(left: 15,right: 15,top: 10),
-                        child: Text("Next Stop",style: tt(foreground.withOpacity(0.5),h6,FontWeight.w600),)),
+                        child: Text("Next Stop",style: tt(foreground.withOpacity(0.5),h4,FontWeight.w600),)),
                     Container(
                         alignment: Alignment.bottomLeft,
                         margin: const EdgeInsets.only(left: 15,right: 15,),
-                        child: Text("Rajput Road Randikhana",style: tt(Colors.green,h2,FontWeight.w600),)),
+                        child: Text("Rajput Road Randikhana",style: tt(Colors.green,h2,FontWeight.w700),)),
 
                     Container(
                         alignment: Alignment.bottomLeft,
                         margin: const EdgeInsets.only(left: 15,right: 15,top: 10),
-                        child: Text("Bus Info".toUpperCase(),style: tt(foreground.withOpacity(0.5),h6,FontWeight.w600),)),
+                        child: Text("Bus Info".toUpperCase(),style: tt(foreground.withOpacity(0.5),h5,FontWeight.w600),)),
                     Container(
                       margin: const EdgeInsets.only(top:10),
                       child: Row(
@@ -159,7 +159,7 @@ class Data {
       },
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
-          position: Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim),
+          position: Tween(begin: const Offset(0, -1), end: const Offset(0, 0)).animate(anim),
           child: child,
         );
       },
@@ -189,18 +189,13 @@ class FirebaseModal {
   FirebaseFirestore instance = FirebaseFirestore.instance;
 
   bool updateData(Data data) {
-    //check our data object has all values before it goes to cloud.
-    if (data.driverName == null ||
-        data.busNo == null ||
-        data.phoneNumber == null) {
-      return false;
-    } else {
+
       instance
           .collection("root")
           .doc(data.busNo.toString())
           .set(data.createMap());
       return true;
-    }
+
   }
 
   // void dataUpdate() {

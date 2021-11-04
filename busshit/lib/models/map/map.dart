@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:math';
 
 import 'package:busshit/designs/design.dart';
@@ -28,7 +26,7 @@ GoogleMapController? mapController;
 Position collegePosition = Position(latitude:30.270317568668297,longitude: 77.99668594373146,timestamp: DateTime.now(),altitude: 0, speed: 0, accuracy: 1, heading: 0, speedAccuracy: 0,);
 var currentPosition;
 var maptype =MapType.normal;
-var activeBuses = List<dynamic>.generate(100,(i)=> null);
+var activeBuses = List<dynamic>.generate(100,(i)=>Data());
 final markers = <MarkerId, Marker>{};
 
 
@@ -70,17 +68,17 @@ class _HomePageState extends State<HomePage> {
          isFuckingLoading = true;
        });
        await BitmapDescriptor.fromAssetImage(
-           ImageConfiguration(size: Size(16, 16)), 'assets/bus.png')
+           const ImageConfiguration(size: Size(16, 16)), 'assets/bus.png')
            .then((onValue) {
          busicon = onValue;
        });
       await BitmapDescriptor.fromAssetImage(
-           ImageConfiguration(size: Size(48, 48)), 'assets/uni.png')
+          const ImageConfiguration(size: Size(48, 48)), 'assets/uni.png')
            .then((onValue) {
          university = onValue;
        });
         await BitmapDescriptor.fromAssetImage(
-           ImageConfiguration(size: Size(48, 48)), 'assets/bus-stop.png')
+           const ImageConfiguration(size: Size(48, 48)), 'assets/bus-stop.png')
            .then((onValue) {
          busstop = onValue;
        });
@@ -98,10 +96,10 @@ class _HomePageState extends State<HomePage> {
            .then((Position position) async {
          setState(() {
            currentPosition = position;
-           print('CURRENT POS: $currentPosition');
+
          });
        }).catchError((e) {
-         print(e);
+
        });
        stopPlotter();
        FirebaseFirestore.instance.collection('root').snapshots()
@@ -134,7 +132,11 @@ class _HomePageState extends State<HomePage> {
                  markers[d.marker] = d.createmarker(context) ;
                });
              }
-             activeBuses.sort((a, b) => a.time.compareTo(b.time));
+             activeBuses.sort((a, b){
+                 return a.time.compareTo(b.time);
+
+             });
+
              setState(() {
                isFuckingLoading = false;
              });
@@ -167,7 +169,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
-        child: isFuckingLoading? Center(child: const CircularProgressIndicator()):Stack(
+        child: isFuckingLoading? const Center(child: CircularProgressIndicator()):Stack(
           children: [
             ExpandableBottomSheet(
               background: Stack(
@@ -179,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                       useRotation : false,
                       rippleRadius: 0.5,  //[0,1.0] range, how big is the circle
                       rippleColor: darkBlue, // Color of fade ripple circle
-                      rippleDuration: Duration(milliseconds: 2500),
+                      rippleDuration: const Duration(seconds: 5),
                       curve: Curves.ease,
                       mapId: controller.future.then<int>((value) => value.mapId), //Grab Google Map Id
                       markers: markers.values.toSet(),
@@ -215,7 +217,7 @@ class _HomePageState extends State<HomePage> {
                       margin:const EdgeInsets.only(right: 15,top:80),
                       alignment: Alignment.topRight,
                       height: 50,
-                      width: 100,
+                      width: 50,
                       decoration: BoxDecoration(
                         borderRadius:BorderRadius.circular(10),
                         color:Colors.white,
@@ -232,24 +234,7 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.satellite,size: 30,),
-                            onPressed: (){
-                              if(maptype == MapType.normal){
-                                setState(() {
-                                  maptype = MapType.satellite;
-                                });
-
-                              }
-                              else{
-                                setState(() {
-                                  maptype = MapType.normal;
-                                });
-
-                              }
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.book,size: 30,),
+                            icon: const Icon(Icons.book,size: 30,),
                             onPressed: (){
                               mapController!.animateCamera(
                                 CameraUpdate.newCameraPosition(
@@ -267,34 +252,32 @@ class _HomePageState extends State<HomePage> {
                       Container(
                         width: double.infinity,
                         height: 50,
-                        padding: EdgeInsets.only(left:15,right: 15,top: 1,bottom: 1),
-                        margin: EdgeInsets.only(left:15,right: 15,top: 15),
+                        padding: const EdgeInsets.only(left:15,right: 15,top: 1,bottom: 1),
+                        margin: const EdgeInsets.only(left:15,right: 15,top: 15),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey.shade400),
+                          border: Border.all(color: Colors.grey.shade300),
                           boxShadow: [
                             BoxShadow(
-                              color: maptype == MapType.satellite ? Colors.grey.shade800: Colors.grey.shade300,
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset: Offset(0, 3), // changes position of shadow
+                              color: Colors.grey.shade400,
+                              spreadRadius: 3,
+                              blurRadius: 6,
+                              offset: const Offset(0, 3), // changes position of shadow
                             ),
                           ],
                         ),
                         child: Center(
                           child: TextField(
                             onChanged: (val){
-                              if(val.length > 0){
+                              if(val.isNotEmpty){
                                 var temp = [];
                                 for(int i = 0; i<activeBuses.length;i++){
                                   var bus = activeBuses[i];
-                                  if(bus != null && bus.busNo.toString().contains(val)){
-                                    print("===================IN LOOOP=====================");
+                                  if(bus.time != 999999 && bus.busNo.toString().contains(val)){
                                     temp.add(bus);
                                   }
                                 }
-                                print(searched.length);
                                 setState(() {
                                   searched = temp;
                                 });
@@ -317,10 +300,10 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      AnimatedSwitcher(duration: Duration(milliseconds: 350),
+                      AnimatedSwitcher(duration: const Duration(milliseconds: 350),
                       child: searched.isNotEmpty? Container(
                         height: 300,
-                        margin: EdgeInsets.only(left:15,right: 15,top: 5),
+                        margin: const EdgeInsets.only(left:15,right: 15,top: 5),
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -330,7 +313,7 @@ class _HomePageState extends State<HomePage> {
                               color: maptype == MapType.satellite ? Colors.grey.shade800: Colors.grey.shade300,
                               spreadRadius: 5,
                               blurRadius: 7,
-                              offset: Offset(0, 3), // changes position of shadow
+                              offset: const Offset(0, 3), // changes position of shadow
                             ),
                           ],
                         ),
@@ -354,23 +337,23 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     Container(
                                       alignment:Alignment.centerLeft,
-                                        margin: EdgeInsets.only(left:15,right:15,top: 10),
+                                        margin:const EdgeInsets.only(left:15,right:15,top: 10),
                                         child: Text("Bus No. " + searched[index].busNo.toString(),style: tt(darkBlue,h3,FontWeight.bold),)),
                                     Row(
                                       children: [
                                         Container(
                                             alignment:Alignment.centerLeft,
-                                            margin: EdgeInsets.only(left:15,right:15),
+                                            margin: const EdgeInsets.only(left:15,right:15),
                                             child: Text(searched[index].areaName.toString() ,style: poppins(Colors.grey.shade700,h4,FontWeight.w500),)),
 
                                         Container(
                                             alignment:Alignment.centerLeft,
-                                            margin: EdgeInsets.only(left:15,right:15),
+                                            margin: const EdgeInsets.only(left:15,right:15),
                                             child: Text(searched[index].time.toString().split(".").first +" Minutes Away",style: poppins(Colors.grey.shade700,h4,FontWeight.w500),)),
                                       ],
                                     ),
                                     Container(
-                                        margin: EdgeInsets.only(left:15),
+                                        margin: const EdgeInsets.only(left:15),
                                         child: Divider(color: Colors.grey.shade600,thickness: 0.5,))
 
                                   ],
@@ -384,6 +367,16 @@ class _HomePageState extends State<HomePage> {
                       )
                      
                     ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        alignment: Alignment.bottomCenter,
+                        height: 30,
+                        color: Colors.white,
+                      ),
+                    ],
                   )
                 ],
               ),
@@ -393,13 +386,78 @@ class _HomePageState extends State<HomePage> {
               animationCurveContract: Curves.ease,
               persistentHeader: const Topbar(),
               expandableContent: Container(
-                height: 400,
-                decoration: const BoxDecoration(color: Colors.white),
+                height: 465,
+                decoration:  BoxDecoration(color: Colors.white,
+                  borderRadius: BorderRadius.circular(5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: maptype == MapType.satellite ? Colors.grey.shade600: Colors.grey.shade400,
+                      spreadRadius: 3,
+                      blurRadius: 6,
+                      offset: const Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+
+                ),
+                margin: const EdgeInsets.only(left:15,right: 15,bottom: 35),
                 child: Column(
                   children: [
                     Container(
+                        alignment: Alignment.bottomLeft,
+                        margin: const EdgeInsets.only(left: 15,right: 15,top: 10),
+                        child: Text("Bus Info".toUpperCase(),style: tt(foreground.withOpacity(0.75),h6,FontWeight.w600),)),
+                    Container(
+                      margin: const EdgeInsets.only(top:10),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 50,
+                              margin: const EdgeInsets.only(left:15,right: 5),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: Colors.grey.shade400)
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children:[
+                                  Icon(Icons.bus_alert_rounded,color: foreground,),
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 5),
+                                    child: Text("Bus No. "+activeBuses[0].busNo.toString(),style: tt(foreground,h4,FontWeight.w600),),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: 50,
+                              margin: const EdgeInsets.only(right:15,left: 5),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: Colors.grey.shade400)
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children:[
+                                  Icon(Icons.contacts_rounded,color: foreground,),
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 5),
+                                    child: Text(activeBuses[0].driverName.toString().split(" ").first,style: tt(foreground,h4,FontWeight.w600),),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
                       height: 50,
-                      margin: const EdgeInsets.only(right: 15, left: 15,bottom:12.5),
+                      margin: const EdgeInsets.only(right: 15, left: 15,bottom:12.5,top: 5),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           boxShadow: [
@@ -407,7 +465,7 @@ class _HomePageState extends State<HomePage> {
                               color: Colors.grey.shade100,
                               spreadRadius: 5,
                               blurRadius: 7,
-                              offset: Offset(0, 3), // changes position of shadow
+                              offset:const Offset(0, 3), // changes position of shadow
                             ),
                           ],
                           borderRadius: BorderRadius.circular(5),
@@ -459,12 +517,12 @@ class _HomePageState extends State<HomePage> {
                         )),
                     OtherBuses(
                       number: 1,
-                      busNumber: activeBuses[1] ?? "No Bus Found",
+                      busNumber: activeBuses[1]!.time == 999999 ? "No Bus Found":"Bus no. " +activeBuses[1].busNo,
                     ),
-                    OtherBuses(number: 2, busNumber: activeBuses[2]  ?? "No Bus Found"),
+                    OtherBuses(number: 2, busNumber: activeBuses[2]!.time == 999999 ? "No Bus Found":"Bus no. " +activeBuses[2].busNo),
                     OtherBuses(
                       number: 3,
-                      busNumber: activeBuses[2] ?? "No Bus Found",
+                      busNumber:activeBuses[3]!.time == 999999 ? "No Bus Found":"Bus no. " +activeBuses[3].busNo,
                     )
                   ],
                 ),
@@ -484,43 +542,40 @@ class OtherBuses extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      //margin:const EdgeInsets.only(left:15,right:15,top: 5),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                  flex: 1,
-                  child: Container(
-
-                      margin: const EdgeInsets.only(left: 30, top: 5),
-                      child: Text(number.toString(),
-                          style: tt(foreground, h1 + 4, FontWeight.w700)))),
-              Expanded(
-                flex: 3,
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Expanded(
+                flex: 1,
                 child: Container(
-                  margin: const EdgeInsets.only(right: 15, top: 5),
-                  child: Column(
-                    children: [
-                      Container(
-                          margin: const EdgeInsets.only(top: 5),
-                          alignment: Alignment.topLeft,
-                          child: Text(busNumber,
-                              style: tt(foreground, h3, FontWeight.w500))),
-                      Divider(
-                        thickness: 1,
-                        color: Colors.grey.shade400,
-                      )
-                    ],
-                  ),
+
+                    margin: const EdgeInsets.only(left: 30, top: 5),
+                    child: Text(number.toString(),
+                        style: tt(foreground, h1 + 4, FontWeight.w700)))),
+            Expanded(
+              flex: 3,
+              child: Container(
+                margin: const EdgeInsets.only(right: 15, top: 5),
+                child: Column(
+                  children: [
+                    Container(
+                        margin: const EdgeInsets.only(top: 5),
+                        alignment: Alignment.topLeft,
+                        child: Text(busNumber,
+                            style: tt(foreground, h3, FontWeight.w500))),
+                    Divider(
+                      thickness: 1,
+                      color: Colors.grey.shade400,
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
-        ],
-      ),
+              ),
+            )
+          ],
+        ),
+      ],
     );
   }
 }

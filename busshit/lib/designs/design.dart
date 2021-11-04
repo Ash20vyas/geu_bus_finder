@@ -4,11 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 var lime = const Color(0xffFFF9A5);
 var darkBlue = const Color(0xff083D77);
 var pink = const Color(0xffF9E9EC);
-var light = Color(0xffF9F9F9);
-var dark1 = Color(0xffF4DFD0);
-var dark2 = Color(0xffDAD0C2);
-var dark3 = Color(0xffCDBBA7);
-var foreground = Color(0xff343A40);
+var light = const Color(0xffF9F9F9);
+var dark1 = const Color(0xffF4DFD0);
+var dark2 = const Color(0xffDAD0C2);
+var dark3 = const Color(0xffCDBBA7);
+var foreground = const Color(0xff343A40);
 
 double h1 = 28;
 double h2 = 24;

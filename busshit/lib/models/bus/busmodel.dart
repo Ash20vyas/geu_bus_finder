@@ -1,20 +1,10 @@
 import 'package:busshit/designs/design.dart';
 import 'package:busshit/models/map/map.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animarker/core/ripple_marker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-var ddd = null;
+var ddd;
 
-class Bus {
-  late List _stops;
-  late String _startTime;
-  late String _regNum;
-  late int _busNumber;
-  late String _driverName;
-  late String _phoneNumber;
-  late String _timeTaken;
-}
 
 class Stop {
   late List coordinates;
@@ -35,9 +25,9 @@ class Stop {
             child: Container(
                 alignment: Alignment.centerLeft,
                 height: 50,
-                margin: EdgeInsets.only(left: 15, right: 15, top: 10),
+                margin: const EdgeInsets.only(left: 15, right: 15, top: 10),
                 child: Container(
-                  margin: EdgeInsets.all(5),
+                  margin:const  EdgeInsets.all(5),
                   child: Text(
                     "Bus No. " + no.toString(),
                     style: tt(darkBlue, h3, FontWeight.bold),
@@ -52,7 +42,7 @@ class Stop {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5),
                   border: Border.all(color: Colors.grey.shade400)),
-              margin: EdgeInsets.only(left: 15, right: 15, top: 10),
+              margin: const EdgeInsets.only(left: 15, right: 15, top: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -79,20 +69,20 @@ class Stop {
       barrierLabel: "Barrier",
       barrierDismissible: true,
       barrierColor: Colors.transparent,
-      transitionDuration: Duration(milliseconds: 450),
+      transitionDuration: const Duration(milliseconds: 450),
       context: context,
       pageBuilder: (_, __, ___) {
         return Align(
             alignment: Alignment.topCenter,
             child: Container(
-              margin: EdgeInsets.only(top:40,left:15,right:15),
+              margin: EdgeInsets.only(left:15,right: 15),
               child: Material(
                 child: InkWell(
                   onTap: (){
                     Navigator.pop(context);
                   },
                   child: Container(
-                    height: 350,
+                    height: 300,
                     width: double.infinity,
 
                     decoration: BoxDecoration(
@@ -102,14 +92,14 @@ class Stop {
                           color: Colors.grey.shade300,
                           spreadRadius:6,
                           blurRadius: 9,
-                          offset: Offset(0, 3), // changes position of shadow
+                          offset: const Offset(0, 3), // changes position of shadow
                         ),
                       ],
                       border: Border.all(color: Colors.grey.shade300),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Container(
-                      margin: const EdgeInsets.only( left: 15, right: 15),
+                      margin: const EdgeInsets.only( left: 5, right: 5,top: 15,bottom: 20),
                       child: ListView.builder(
                           itemCount: buses.length,
                           itemBuilder: (context, index) {
@@ -118,14 +108,14 @@ class Stop {
                                 children: [
                                   Container(
                                       alignment: Alignment.centerLeft,
-                                      margin: EdgeInsets.only(left: 15, right: 15),
+                                      margin: const EdgeInsets.only(left: 15, right: 15),
                                       child: Text(
                                         address.split(",").first.toUpperCase(),
                                         style: tt(foreground, h2, FontWeight.bold),
                                       )),
                                   Container(
                                       alignment: Alignment.centerLeft,
-                                      margin: EdgeInsets.only(left: 15, right: 15),
+                                      margin: const EdgeInsets.only(left: 15, right: 15),
                                       child: Text(
                                         "Buses which go through here",
                                         style: poppins(Colors.grey.shade600, h4,
@@ -133,8 +123,6 @@ class Stop {
                                       )),
                                   InkWell(
                                     onTap: () {
-                                      print("===================");
-                                      print(buses[index].toString());
                                       if(markers[MarkerId(buses[index].toString())] != null){
                                         mapController!.animateCamera(
                                           CameraUpdate.newCameraPosition(
@@ -144,7 +132,7 @@ class Stop {
                                       }
                                       else{
                                         final snackBar = SnackBar(
-                                          duration: Duration(milliseconds: 350),
+                                          duration: const Duration(milliseconds: 350),
                                           content: Text('Bus not in service.',style: poppins(Colors.white,h3,FontWeight.w600),),backgroundColor: Colors.red,);
                                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                       }
@@ -153,9 +141,9 @@ class Stop {
                                       children: [
                                         box(buses[index].toString()),
                                         Container(
-                                            margin: EdgeInsets.only(left: 15),
+                                            margin: const EdgeInsets.only(left: 15),
                                             child: Divider(
-                                              color: Colors.grey.shade600,
+                                              color: Colors.grey.shade400,
                                               thickness: 0.5,
                                             ))
                                       ],
@@ -166,8 +154,6 @@ class Stop {
                             }
                             return InkWell(
                               onTap: () {
-                                print("===================");
-                                print(buses[index].toString());
                                 if(markers[MarkerId(buses[index].toString())] != null){
                                   mapController!.animateCamera(
                                     CameraUpdate.newCameraPosition(
@@ -177,7 +163,7 @@ class Stop {
                                 }
                                 else{
                                   final snackBar = SnackBar(
-                                    duration: Duration(milliseconds: 350),
+                                    duration:const  Duration(milliseconds: 350),
                                     content: Text('Bus not in service.',style: poppins(Colors.white,h3,FontWeight.w600),),backgroundColor: Colors.red,);
                                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                 }
@@ -186,7 +172,7 @@ class Stop {
                                 children: [
                                   box(buses[index].toString()),
                                   Container(
-                                      margin: EdgeInsets.only(left: 15),
+                                      margin: const EdgeInsets.only(left: 15),
                                       child: Divider(
                                         color: Colors.grey.shade600,
                                         thickness: 0.5,
@@ -204,7 +190,7 @@ class Stop {
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
           position:
-              Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim),
+              Tween(begin: const Offset(0, -1), end: const Offset(0, 0)).animate(anim),
           child: child,
         );
       },
