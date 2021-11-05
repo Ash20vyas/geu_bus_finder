@@ -64,7 +64,7 @@ class Data {
             ),
             child: Material(
               child: Container(
-                margin: const EdgeInsets.only( left: 5, right: 5,top: 20,bottom: 20),
+                margin: const EdgeInsets.only( left: 5, right: 5,top: 40,bottom: 20),
                 child: Column(
                   children: [
                     Container(
