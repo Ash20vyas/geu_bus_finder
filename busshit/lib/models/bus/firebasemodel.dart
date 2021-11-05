@@ -186,7 +186,7 @@ class Data {
   }
 
   Marker createmarker(BuildContext context) {
-    Marker startMarker = RippleMarker(
+    Marker startMarker = Marker(
         markerId: MarkerId(busNo.toString()),
         position: LatLng(latitude, longitude),
         icon: busicon,
