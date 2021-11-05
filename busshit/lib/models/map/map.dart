@@ -134,7 +134,6 @@ class _HomePageState extends State<HomePage> {
              }
              activeBuses.sort((a, b){
                  return a.time.compareTo(b.time);
-
              });
 
              setState(() {
@@ -517,12 +516,12 @@ class _HomePageState extends State<HomePage> {
                         )),
                     OtherBuses(
                       number: 1,
-                      busNumber: activeBuses[1]!.time == 999999 ? "No Bus Found":"Bus no. " +activeBuses[1].busNo,
+                      busNumber: activeBuses[1]!.time == 999999 ? "No Bus Found":"Bus no. " +activeBuses[1].busNo.toString(),
                     ),
                     OtherBuses(number: 2, busNumber: activeBuses[2]!.time == 999999 ? "No Bus Found":"Bus no. " +activeBuses[2].busNo),
                     OtherBuses(
                       number: 3,
-                      busNumber:activeBuses[3]!.time == 999999 ? "No Bus Found":"Bus no. " +activeBuses[3].busNo,
+                      busNumber:activeBuses[3]!.time == 999999 ? "No Bus Found":"Bus no. " +activeBuses[3].busNo.toString(),
                     )
                   ],
                 ),
