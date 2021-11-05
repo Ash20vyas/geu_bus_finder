@@ -2,9 +2,9 @@ import 'package:busshit/designs/design.dart';
 import 'package:busshit/models/map/map.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 var ddd;
-
 
 class Stop {
   late List coordinates;
@@ -27,7 +27,7 @@ class Stop {
                 height: 50,
                 margin: const EdgeInsets.only(left: 15, right: 15, top: 10),
                 child: Container(
-                  margin:const  EdgeInsets.all(5),
+                  margin: const EdgeInsets.all(5),
                   child: Text(
                     "Bus No. " + no.toString(),
                     style: tt(darkBlue, h3, FontWeight.bold),
@@ -50,12 +50,18 @@ class Stop {
                     Icons.call,
                     color: foreground,
                   ),
-                  Container(
-                    margin: const EdgeInsets.only(left: 5),
-                    child: Text(
-                      activeBuses[0].phoneNumber.toString(),
-                      style: tt(foreground, h5, FontWeight.w600),
+                  InkWell(
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 5),
+                      child: Text(
+                        activeBuses[0].phoneNumber.toString(),
+                        style: tt(foreground, h5, FontWeight.w600),
+                      ),
                     ),
+                    onTap: () async {
+                      await launch(
+                          "tel:" + activeBuses[0].phoneNumber.toString());
+                    },
                   ),
                 ],
               ),
@@ -75,30 +81,31 @@ class Stop {
         return Align(
             alignment: Alignment.topCenter,
             child: Container(
-              margin: EdgeInsets.only(left:15,right: 15),
+              margin: EdgeInsets.only(left: 15, right: 15),
               child: Material(
                 child: InkWell(
-                  onTap: (){
+                  onTap: () {
                     Navigator.pop(context);
                   },
                   child: Container(
                     height: 300,
                     width: double.infinity,
-
                     decoration: BoxDecoration(
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
                           color: Colors.grey.shade300,
-                          spreadRadius:6,
+                          spreadRadius: 6,
                           blurRadius: 9,
-                          offset: const Offset(0, 3), // changes position of shadow
+                          offset:
+                              const Offset(0, 3), // changes position of shadow
                         ),
                       ],
                       border: Border.all(color: Colors.grey.shade300),
                     ),
                     child: Container(
-                      margin: const EdgeInsets.only( left: 5, right: 5,top: 15,bottom: 20),
+                      margin: const EdgeInsets.only(
+                          left: 5, right: 5, top: 15, bottom: 20),
                       child: ListView.builder(
                           itemCount: buses.length,
                           itemBuilder: (context, index) {
@@ -107,14 +114,17 @@ class Stop {
                                 children: [
                                   Container(
                                       alignment: Alignment.centerLeft,
-                                      margin: const EdgeInsets.only(left: 15, right: 15),
+                                      margin: const EdgeInsets.only(
+                                          left: 15, right: 15),
                                       child: Text(
                                         address.split(",").first.toUpperCase(),
-                                        style: tt(foreground, h2, FontWeight.bold),
+                                        style:
+                                            tt(foreground, h2, FontWeight.bold),
                                       )),
                                   Container(
                                       alignment: Alignment.centerLeft,
-                                      margin: const EdgeInsets.only(left: 15, right: 15),
+                                      margin: const EdgeInsets.only(
+                                          left: 15, right: 15),
                                       child: Text(
                                         "Buses which go through here",
                                         style: poppins(Colors.grey.shade600, h4,
@@ -122,25 +132,38 @@ class Stop {
                                       )),
                                   InkWell(
                                     onTap: () {
-                                      if(markers[MarkerId(buses[index].toString())] != null){
+                                      if (markers[MarkerId(
+                                              buses[index].toString())] !=
+                                          null) {
                                         mapController!.animateCamera(
                                           CameraUpdate.newCameraPosition(
-                                              CameraPosition(target: markers[MarkerId(buses[index].toString())]!.position)
-                                          ),
+                                              CameraPosition(
+                                                  target: markers[MarkerId(
+                                                          buses[index]
+                                                              .toString())]!
+                                                      .position)),
                                         );
-                                      }
-                                      else{
+                                      } else {
                                         final snackBar = SnackBar(
-                                          duration: const Duration(milliseconds: 350),
-                                          content: Text('Bus not in service.',style: poppins(Colors.white,h3,FontWeight.w600),),backgroundColor: Colors.red,);
-                                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                          duration:
+                                              const Duration(milliseconds: 350),
+                                          content: Text(
+                                            'Bus not in service.',
+                                            style: poppins(Colors.white, h3,
+                                                FontWeight.w600),
+                                          ),
+                                          backgroundColor: Colors.red,
+                                        );
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
                                       }
                                     },
                                     child: Column(
                                       children: [
                                         box(buses[index].toString()),
                                         Container(
-                                            margin: const EdgeInsets.only(left: 15),
+                                            margin:
+                                                const EdgeInsets.only(left: 15),
                                             child: Divider(
                                               color: Colors.grey.shade400,
                                               thickness: 0.5,
@@ -153,18 +176,28 @@ class Stop {
                             }
                             return InkWell(
                               onTap: () {
-                                if(markers[MarkerId(buses[index].toString())] != null){
+                                if (markers[
+                                        MarkerId(buses[index].toString())] !=
+                                    null) {
                                   mapController!.animateCamera(
                                     CameraUpdate.newCameraPosition(
-                                        CameraPosition(target: markers[MarkerId(buses[index].toString())]!.position)
-                                    ),
+                                        CameraPosition(
+                                            target: markers[MarkerId(
+                                                    buses[index].toString())]!
+                                                .position)),
                                   );
-                                }
-                                else{
+                                } else {
                                   final snackBar = SnackBar(
-                                    duration:const  Duration(milliseconds: 350),
-                                    content: Text('Bus not in service.',style: poppins(Colors.white,h3,FontWeight.w600),),backgroundColor: Colors.red,);
-                                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                    duration: const Duration(milliseconds: 350),
+                                    content: Text(
+                                      'Bus not in service.',
+                                      style: poppins(
+                                          Colors.white, h3, FontWeight.w600),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  );
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(snackBar);
                                 }
                               },
                               child: Column(
@@ -188,8 +221,8 @@ class Stop {
       },
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
-          position:
-              Tween(begin: const Offset(0, -1), end: const Offset(0, 0)).animate(anim),
+          position: Tween(begin: const Offset(0, -1), end: const Offset(0, 0))
+              .animate(anim),
           child: child,
         );
       },
