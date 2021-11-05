@@ -44,10 +44,10 @@ class _HomePageState extends State<HomePage> {
  final CameraPosition _initialLocation =  const CameraPosition(
       target: LatLng(30.270317568668297, 77.99668594373146), zoom: 5);
 
+ var permission = false;
 
 
-
-  void stopPlotter(){
+ void stopPlotter(){
     for(int i = 0; i < locations.length ; i++){
       var map = locations[i];
       Stop stop = Stop();
@@ -94,7 +94,23 @@ class _HomePageState extends State<HomePage> {
 
        markers[MarkerId('(${collegePosition.latitude}, ${collegePosition.longitude})')] = startMarker;
        var serviceEnabled = await Geolocator.isLocationServiceEnabled();
-       var permission = await Geolocator.checkPermission();
+       var status = await Geolocator.checkPermission();
+       if(status == LocationPermission.whileInUse || status == LocationPermission.always){
+         setState(() {
+           permission = true;
+         });
+       }
+       else{
+        var n = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          permission = false;
+        }else{
+          setState(() {
+            permission = true;
+          });
+        }
+
+       }
        await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
            .then((Position position) async {
          setState(() {
@@ -171,7 +187,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
-        child: isFuckingLoading? const Center(child: CircularProgressIndicator()):Stack(
+        child: permission ?isFuckingLoading? const Center(child: CircularProgressIndicator()):Stack(
           children: [
             ExpandableBottomSheet(
               key: key,
@@ -544,6 +560,10 @@ class _HomePageState extends State<HomePage> {
               ),
             )
           ],
+        ):Center(
+          child: Container(
+              margin: EdgeInsets.all(15),
+              child: Text("This app requires your location to calculate nearest bus to you. Please enable permission and retry again.",style: tt(foreground,h3,FontWeight.bold),)),
         ),
       ),
     );
