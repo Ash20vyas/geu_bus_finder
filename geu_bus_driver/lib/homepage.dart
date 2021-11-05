@@ -20,7 +20,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Data d = Data();
-  var busNo = 400;
+  var busNo = 53;
   var driverName = "Ashutosh Vyas";
   var phoneNumber = "9149117784";
   var dist = 0.0;
