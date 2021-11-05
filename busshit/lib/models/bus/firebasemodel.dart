@@ -1,3 +1,5 @@
+
+
 import 'package:busshit/designs/design.dart';
 import 'package:busshit/models/map/map.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animarker/core/ripple_marker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../../data.dart';
 var dd = null;
 class Data {
   late String driverName;
@@ -32,6 +36,7 @@ class Data {
 
 
   Future dialog(BuildContext context){
+
     return showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
@@ -40,38 +45,28 @@ class Data {
       context: context,
       pageBuilder: (_, __, ___) {
         return Align(
-          alignment: Alignment.topCenter,
-          child: Material(
-            child: Container(
-              height: 285,
-              width: double.infinity,
-              margin: EdgeInsets.only(left:15,right: 15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade300,
-                    spreadRadius: 5,
-                    blurRadius: 9,
-                    offset: const Offset(0, 3), // changes position of shadow
-                  ),
-                ],
-                border: Border.all(color: Colors.grey.shade400),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child:Container(
+          alignment:Alignment.topCenter,
+          child: Container(
+            height: 220,
+            margin: EdgeInsets.only(left:15,right: 15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade300,
+                  spreadRadius:6,
+                  blurRadius: 9,
+                  offset: const Offset(0, 3), // changes position of shadow
+                ),
+              ],
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Material(
+              child: Container(
                 margin: const EdgeInsets.only( left: 5, right: 5,top: 20,bottom: 20),
                 child: Column(
                   children: [
-                    Container(
-                        alignment: Alignment.bottomLeft,
-                        margin: const EdgeInsets.only(left: 15,right: 15,top: 10),
-                        child: Text("Next Stop",style: tt(foreground.withOpacity(0.5),h4,FontWeight.w600),)),
-                    Container(
-                        alignment: Alignment.bottomLeft,
-                        margin: const EdgeInsets.only(left: 15,right: 15,),
-                        child: Text("Rajput Road Randikhana",style: tt(Colors.green,h2,FontWeight.w700),)),
-
                     Container(
                         alignment: Alignment.bottomLeft,
                         margin: const EdgeInsets.only(left: 15,right: 15,top: 10),
@@ -86,7 +81,6 @@ class Data {
                               margin: const EdgeInsets.only(left:15,right: 5),
                               decoration: BoxDecoration(
                                   color: Colors.white,
-
                                   borderRadius: BorderRadius.circular(5),
                                   border: Border.all(color: Colors.grey.shade400)
                               ),
@@ -152,7 +146,7 @@ class Data {
                     ),
                   ],
                 ),
-              ) ,
+              ),
             ),
           ),
         );

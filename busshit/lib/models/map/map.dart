@@ -32,6 +32,7 @@ final markers = <MarkerId, Marker>{};
 
 
 
+GlobalKey<ExpandableBottomSheetState> key = GlobalKey();
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -89,6 +90,8 @@ class _HomePageState extends State<HomePage> {
          icon:university,
          ripple: false
        );
+
+
        markers[MarkerId('(${collegePosition.latitude}, ${collegePosition.longitude})')] = startMarker;
        var serviceEnabled = await Geolocator.isLocationServiceEnabled();
        var permission = await Geolocator.checkPermission();
@@ -171,6 +174,7 @@ class _HomePageState extends State<HomePage> {
         child: isFuckingLoading? const Center(child: CircularProgressIndicator()):Stack(
           children: [
             ExpandableBottomSheet(
+              key: key,
               background: Stack(
                 children: [
                   SizedBox(
@@ -326,7 +330,8 @@ class _HomePageState extends State<HomePage> {
                                       target: LatLng(searched[index].latitude,searched[index].longitude), zoom: 14);
                                   mapController!.animateCamera(
                                     CameraUpdate.newCameraPosition(
-                                        x
+                                        x,
+
                                     ),
                                   );
                                   searched = [];
@@ -410,23 +415,34 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: Container(
-                              height: 50,
-                              margin: const EdgeInsets.only(left:15,right: 5),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(5),
-                                  border: Border.all(color: Colors.grey.shade400)
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children:[
-                                  Icon(Icons.bus_alert_rounded,color: foreground,),
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 5),
-                                    child: Text("Bus No. "+activeBuses[0].busNo.toString(),style: tt(foreground,h4,FontWeight.w600),),
+                            child: InkWell(
+                              onTap: (){
+                                key.currentState!.contract();
+                                mapController!.animateCamera(
+                                  CameraUpdate.newCameraPosition(
+                                      CameraPosition(
+                                          target: markers[MarkerId(activeBuses[0].busNo.toString())]!.position)
                                   ),
-                                ],
+                                );
+                              },
+                              child: Container(
+                                height: 50,
+                                margin: const EdgeInsets.only(left:15,right: 5),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(5),
+                                    border: Border.all(color: Colors.grey.shade400)
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children:[
+                                    Icon(Icons.bus_alert_rounded,color: foreground,),
+                                    Container(
+                                      margin: const EdgeInsets.only(left: 5),
+                                      child: Text("Bus No. "+activeBuses[0].busNo.toString(),style: tt(foreground,h4,FontWeight.w600),),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -541,40 +557,51 @@ class OtherBuses extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Expanded(
-                flex: 1,
-                child: Container(
+    return InkWell(
+      onTap: (){
+        key.currentState!.contract();
+        mapController!.animateCamera(
+          CameraUpdate.newCameraPosition(
+              CameraPosition(
+                  target: markers[MarkerId(busNumber.split(" ").last)]!.position)
+          ),
+        );
+      },
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                  flex: 1,
+                  child: Container(
 
-                    margin: const EdgeInsets.only(left: 30, top: 5),
-                    child: Text(number.toString(),
-                        style: tt(foreground, h1 + 4, FontWeight.w700)))),
-            Expanded(
-              flex: 3,
-              child: Container(
-                margin: const EdgeInsets.only(right: 15, top: 5),
-                child: Column(
-                  children: [
-                    Container(
-                        margin: const EdgeInsets.only(top: 5),
-                        alignment: Alignment.topLeft,
-                        child: Text(busNumber,
-                            style: tt(foreground, h3, FontWeight.w500))),
-                    Divider(
-                      thickness: 1,
-                      color: Colors.grey.shade400,
-                    )
-                  ],
+                      margin: const EdgeInsets.only(left: 30, top: 5),
+                      child: Text(number.toString(),
+                          style: tt(foreground, h1 + 4, FontWeight.w700)))),
+              Expanded(
+                flex: 3,
+                child: Container(
+                  margin: const EdgeInsets.only(right: 15, top: 5),
+                  child: Column(
+                    children: [
+                      Container(
+                          margin: const EdgeInsets.only(top: 5),
+                          alignment: Alignment.topLeft,
+                          child: Text(busNumber,
+                              style: tt(foreground, h3, FontWeight.w500))),
+                      Divider(
+                        thickness: 1,
+                        color: Colors.grey.shade400,
+                      )
+                    ],
+                  ),
                 ),
-              ),
-            )
-          ],
-        ),
-      ],
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

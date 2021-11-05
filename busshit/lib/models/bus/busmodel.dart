@@ -96,7 +96,6 @@ class Stop {
                         ),
                       ],
                       border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(15),
                     ),
                     child: Container(
                       margin: const EdgeInsets.only( left: 5, right: 5,top: 15,bottom: 20),
