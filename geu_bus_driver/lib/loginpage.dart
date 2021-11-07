@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geu_bus_driver/designs.dart';
+import 'package:geu_bus_driver/main.dart';
 import 'package:hive/hive.dart';
 
 import 'homepage.dart';
@@ -14,16 +15,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String phoneNumber = "";
   bool showLoadingScreen = false;
   bool otpScreen = false;
   var _codeController = TextEditingController();
-  void loginUser(String phone, BuildContext context) async {
+  void loginUser(String phone, BuildContext context,
+      [dynamic resending]) async {
     FirebaseAuth _auth = FirebaseAuth.instance;
     setState(() {
       showLoadingScreen = true;
     });
     _auth.verifyPhoneNumber(
+        forceResendingToken: resending ?? null,
         phoneNumber: "+91" + phone,
         timeout: Duration(seconds: 60),
         verificationCompleted: (AuthCredential credential) async {
@@ -32,8 +34,8 @@ class _LoginPageState extends State<LoginPage> {
           var user = result.user;
           if (user != null) {
             var b = Hive.box('login');
-            print("Sumseccfuly logged in");
             b.put('login', true);
+            b.put('phoneNumber', phoneNumber);
             Navigator.pop(context);
             Navigator.pop(context);
             Navigator.push(
@@ -46,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
             final snackBar = SnackBar(
                 backgroundColor: Colors.red,
                 content: Text(
-                  'Error has occurred. Please retry again.',
+                  'Error has occurred. Please retry again.1',
                   style: montserrat(Colors.white, h4, FontWeight.w600),
                 ));
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -59,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
           final snackBar = SnackBar(
               backgroundColor: Colors.red,
               content: Text(
-                'Error has occurred. Please retry again.',
+                'Error has occurred. Please retry again.2',
                 style: montserrat(Colors.white, h4, FontWeight.w600),
               ));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -123,8 +125,13 @@ class _LoginPageState extends State<LoginPage> {
                                     left: 15, right: 15, bottom: 10),
                                 child: InkWell(
                                   onTap: () {
+                                    setState(() {
+                                      showLoadingScreen = false;
+                                      otpScreen = false;
+                                    });
                                     Navigator.pop(context);
-                                    loginUser(phone, context);
+                                    loginUser(
+                                        phone, context, forceResendingToken);
                                   },
                                   child: Text(
                                     "Resend OTP?",
@@ -165,6 +172,7 @@ class _LoginPageState extends State<LoginPage> {
                                 if (user != null) {
                                   var b = Hive.box('login');
                                   b.put('login', true);
+                                  b.put('phoneNumber', phoneNumber);
                                   Navigator.pop(context);
                                   Navigator.pop(context);
                                   Navigator.push(
@@ -185,7 +193,7 @@ class _LoginPageState extends State<LoginPage> {
                                   final snackBar = SnackBar(
                                       backgroundColor: Colors.red,
                                       content: Text(
-                                        'Error has occurred. Please retry again.',
+                                        'Error has occurred. Please retry again.3',
                                         style: montserrat(
                                             Colors.white, h4, FontWeight.w600),
                                       ));

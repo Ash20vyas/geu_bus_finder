@@ -9,10 +9,8 @@ import 'package:path_provider/path_provider.dart';
 
 FirebaseModal model = FirebaseModal();
 
-
-
-var t ;
-
+var t;
+String phoneNumber = "";
 
 void main() async {
   await Hive.initFlutter();
@@ -21,9 +19,7 @@ void main() async {
 
   var box = await Hive.openBox('login');
   t = box.get('login') ?? false;
-
-
-
+  phoneNumber = box.get('phoneNumber') ?? "";
   runApp(MyApp());
 }
 

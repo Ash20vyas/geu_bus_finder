@@ -1,15 +1,21 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+
 import 'package:geu_bus_driver/designs.dart';
 import 'package:geu_bus_driver/firebasemodel.dart';
-import 'dart:math';
 
 import 'main.dart';
 
 bool isStarted = false;
+
+var optionColor = [];
+
+var busNo = -1;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -20,9 +26,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Data d = Data();
-  var busNo = 53;
-  var driverName = "Ashutosh Vyas";
-  var phoneNumber = "9149117784";
+  var driverName = "";
   var dist = 0.0;
   double total = 0.0;
   bool isChecked = false;
@@ -31,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   Position? currentPosition;
   var timer;
   double distance = 0.0;
-  _getCurrentLocation() async {
+  anotherSlave() async {
     var serviceEnabled = await Geolocator.isLocationServiceEnabled();
     var permission = await Geolocator.checkPermission();
     timer = Timer.periodic(Duration(seconds: 5), (timer) async {
@@ -80,6 +84,29 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  slave() {
+    FirebaseFirestore.instance
+        .collection('driver')
+        .snapshots()
+        .listen((QuerySnapshot querySnapshot) async {
+      for (int i = 0; i < querySnapshot.docs.length; i++) {
+        if (phoneNumber == querySnapshot.docs[i]["phoneNumber"]) {
+          setState(() {
+            driverName = querySnapshot.docs[i]["driverName"];
+          });
+          break;
+        }
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    slave();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,28 +119,30 @@ class _HomePageState extends State<HomePage> {
             begin: Alignment.bottomRight,
             end: Alignment.topLeft,
             colors: [
-              isStarted ? Color(0xffF08A8A) : Color(0xffC0F9C2),
-              isStarted ? Color(0xffF08A8A) : Color(0xffC0F9C2),
-              isStarted
-                  ? Color(0xffF08A8A).withOpacity(0.2)
-                  : Color(0xffC0F9C2).withOpacity(0.2),
+              isStarted ? Color(0xffF08A8A) : Colors.white,
+              isStarted ? Color(0xffF08A8A) : Colors.white,
+              isStarted ? Color(0xffF08A8A).withOpacity(0.2) : Colors.white,
             ],
           )),
         ),
-        Column(
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.2,
-            ),
-            SubHeading(value: "Bus No"),
-            Heading(value: busNo.toString()),
-            SubHeading(value: "Name"),
-            Heading(value: driverName),
-            SubHeading(value: "Phone Number"),
-            NumHeading(value: phoneNumber),
-            SubHeading(value: "Total"),
-            Heading(value: total.toString()),
-          ],
+        AnimatedSwitcher(
+          duration: Duration(milliseconds: 350),
+          child: isStarted
+              ? Container(
+                  child: Column(
+                    children: [],
+                  ),
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.2,
+                    ),
+                    SubHeading(value: "Name"),
+                    Heading(value: driverName),
+                  ],
+                ),
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -178,10 +207,111 @@ class _HomePageState extends State<HomePage> {
                     });
                   } else {
                     if (isChecked) {
-                      setState(() {
-                        isStarted = !isStarted;
-                        _getCurrentLocation();
-                      });
+                      void dialogBox(BuildContext context) {
+                        showGeneralDialog(
+                            // barrierColor: black.withOpacity(0.3),
+                            context: context,
+                            pageBuilder: (_, __, ___) {
+                              return Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  padding: EdgeInsets.all(10),
+                                  margin: EdgeInsets.only(left: 15, right: 15),
+                                  alignment: Alignment.center,
+                                  height: 300,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.shade700,
+                                        spreadRadius: 6,
+                                        blurRadius: 9,
+                                        offset: const Offset(
+                                            0, 3), // changes position of shadow
+                                      ),
+                                    ],
+                                    borderRadius: BorderRadius.circular(15),
+                                    border:
+                                        Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: Material(
+                                    child: StreamBuilder<QuerySnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection("availableBuses")
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          optionColor = List<bool>.generate(
+                                              snapshot
+                                                  .data!
+                                                  .docs[0]['busesAvailable']
+                                                  .length,
+                                              (i) => false);
+                                          print(optionColor);
+                                          return Column(
+                                            children: [
+                                              Container(
+                                                  height: 225,
+                                                  child: makeList(
+                                                      snapshot: snapshot)),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: [
+                                                  Expanded(
+                                                    child: Container(
+                                                      child: InkWell(
+                                                        child: Container(
+                                                          height: 40,
+                                                          child: Center(
+                                                              child: Text(
+                                                                  "Cancel")),
+                                                        ),
+                                                        onTap: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Container(
+                                                      child: InkWell(
+                                                        child: Container(
+                                                          height: 40,
+                                                          child: Center(
+                                                              child: Text(
+                                                                  "Continue")),
+                                                        ),
+                                                        onTap: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                          setState(() {
+                                                            isStarted =
+                                                                !isStarted;
+                                                            slave();
+                                                          });
+                                                        },
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              )
+                                            ],
+                                          );
+                                        } else {
+                                          return CircularProgressIndicator();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              );
+                            });
+                      }
+
+                      dialogBox(context);
                     } else {
                       final snackBar = SnackBar(
                         content: Text(
@@ -218,10 +348,10 @@ class SubHeading extends StatelessWidget {
     return AnimatedContainer(
       duration: Duration(milliseconds: 350),
       alignment: Alignment.centerLeft,
-      margin: EdgeInsets.only(left: 15, top: 20, bottom: 5),
+      margin: EdgeInsets.only(left: 15, bottom: 5, right: 15),
       child: Text(
         value,
-        style: montserrat(Colors.grey.shade700, h4),
+        style: montserrat(Colors.grey.shade500, h4),
       ),
     );
   }
@@ -239,8 +369,8 @@ class Heading extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 350),
-      alignment: Alignment.centerLeft,
-      margin: EdgeInsets.only(left: 15),
+      alignment: Alignment.center,
+      margin: EdgeInsets.only(left: 15, right: 15),
       child: AutoSizeText(
         value,
         maxLines: 2,
@@ -269,5 +399,115 @@ class NumHeading extends StatelessWidget {
         style: montserrat(isStarted ? Colors.white : black, h1 + 7),
       ),
     );
+  }
+}
+
+class makeList extends StatefulWidget {
+  dynamic snapshot;
+
+  makeList({
+    Key? key,
+    required this.snapshot,
+  }) : super(key: key);
+
+  @override
+  _makeListState createState() => _makeListState();
+}
+
+class _makeListState extends State<makeList> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        itemCount: widget.snapshot.data!.docs[0]['busesAvailable'].length,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Container(
+              child: Column(
+                children: [
+                  Container(
+                    alignment: Alignment.topLeft,
+                    margin: EdgeInsets.only(left: 15, top: 5, bottom: 5),
+                    child: Text("All available buses",
+                        style: montserrat(Colors.black, h2)),
+                  ),
+                  Container(
+                    alignment: Alignment.topLeft,
+                    margin: EdgeInsets.only(left: 15, bottom: 5),
+                    child: Text(
+                      "Select the bus assigned to you",
+                      style: montserrat(Colors.grey.shade400, h5),
+                    ),
+                  ),
+                  Container(
+                    height: 30,
+                    alignment: Alignment.topLeft,
+                    margin: EdgeInsets.only(left: 15, top: 5, bottom: 5),
+                    decoration: BoxDecoration(
+                        color: optionColor[index] ? Colors.blue : Colors.white,
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey.shade400)),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          optionColor = List<bool>.generate(
+                              widget.snapshot.data!.docs[0]['busesAvailable']
+                                  .length,
+                              (i) => false);
+                          optionColor[index] = true;
+                          busNo = widget.snapshot.data!.docs[0]
+                              ['busesAvailable'][index];
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        margin: EdgeInsets.only(left: 5),
+                        child: Text(
+                          "Bus No. " +
+                              widget.snapshot.data!
+                                  .docs[0]['busesAvailable'][index]
+                                  .toString(),
+                          style: montserrat(
+                              optionColor[index] ? Colors.white : black),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            );
+          }
+          return Container(
+            height: 30,
+            alignment: Alignment.topLeft,
+            margin: EdgeInsets.only(left: 15, top: 5, bottom: 5),
+            decoration: BoxDecoration(
+                color: optionColor[index] ? Colors.blue : Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: Colors.grey.shade400)),
+            child: InkWell(
+              onTap: () {
+                print("!");
+                setState(() {
+                  optionColor = List<bool>.generate(
+                      widget.snapshot.data!.docs[0]['busesAvailable'].length,
+                      (i) => false);
+                  optionColor[index] = true;
+                  busNo =
+                      widget.snapshot.data!.docs[0]['busesAvailable'][index];
+                });
+              },
+              child: Container(
+                alignment: Alignment.centerLeft,
+                margin: EdgeInsets.only(left: 5),
+                child: Text(
+                  "Bus No. " +
+                      widget.snapshot.data!.docs[0]['busesAvailable'][index]
+                          .toString(),
+                  style: montserrat(optionColor[index] ? Colors.white : black),
+                ),
+              ),
+            ),
+          );
+        });
   }
 }
