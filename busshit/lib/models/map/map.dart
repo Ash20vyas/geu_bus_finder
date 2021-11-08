@@ -708,7 +708,8 @@ class _HomePageState extends State<HomePage> {
                                   number: 2,
                                   busNumber: activeBuses[2]!.time == 999999
                                       ? "No Bus Found"
-                                      : "Bus no. " + activeBuses[2].busNo),
+                                      : "Bus no. " +
+                                          activeBuses[2].busNo.toString()),
                               OtherBuses(
                                 number: 3,
                                 busNumber: activeBuses[3]!.time == 999999

@@ -45,7 +45,7 @@ class Data {
         return Align(
           alignment: Alignment.topCenter,
           child: Container(
-            height: 220,
+            height: 240,
             margin: EdgeInsets.only(left: 15, right: 15),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -62,7 +62,8 @@ class Data {
             ),
             child: Material(
               child: Container(
-                margin: const EdgeInsets.only( left: 5, right: 5,top: 40,bottom: 20),
+                margin: const EdgeInsets.only(
+                    left: 5, right: 5, top: 40, bottom: 20),
                 child: Column(
                   children: [
                     Container(
