@@ -130,7 +130,19 @@ class _HomePageState extends State<HomePage> {
           child: isStarted
               ? Container(
                   child: Column(
-                    children: [],
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.2,
+                      ),
+                      SubHeading(value: "Name"),
+                      Heading(value: driverName),
+                      SubHeading(value: "Time Elapsed"),
+                      TimerWidget(),
+                      SubHeading(value: "Bus No."),
+                      Heading(
+                        value: busNo.toString(),
+                      ),
+                    ],
                   ),
                 )
               : Column(
@@ -285,13 +297,40 @@ class _HomePageState extends State<HomePage> {
                                                                   "Continue")),
                                                         ),
                                                         onTap: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                          setState(() {
-                                                            isStarted =
-                                                                !isStarted;
-                                                            slave();
-                                                          });
+                                                          if (busNo == -1) {
+                                                            Navigator.pop(
+                                                                context);
+                                                            var snackbar =
+                                                                SnackBar(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .red,
+                                                                    content:
+                                                                        Text(
+                                                                      "Select a bus first.",
+                                                                      style: montserrat(
+                                                                          Colors
+                                                                              .white,
+                                                                          h3,
+                                                                          FontWeight
+                                                                              .w600),
+                                                                    ));
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                                    snackbar);
+                                                          } else {
+                                                            print(busNo);
+                                                            print(driverName);
+                                                            print(phoneNumber);
+                                                            Navigator.pop(
+                                                                context);
+                                                            setState(() {
+                                                              isStarted =
+                                                                  !isStarted;
+                                                              slave();
+                                                            });
+                                                          }
                                                         },
                                                       ),
                                                     ),
@@ -509,5 +548,51 @@ class _makeListState extends State<makeList> {
             ),
           );
         });
+  }
+}
+
+class TimerWidget extends StatefulWidget {
+  const TimerWidget({Key? key}) : super(key: key);
+
+  @override
+  _TimerWidgetState createState() => _TimerWidgetState();
+}
+
+class _TimerWidgetState extends State<TimerWidget> {
+  var initTime = DateTime.now();
+  Timer? _timer;
+  int _start = 0;
+  void startTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (!isStarted) {
+          _timer!.cancel();
+        } else {
+          setState(() {
+            _start++;
+          });
+        }
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    startTimer();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        alignment: Alignment.bottomLeft,
+        margin: EdgeInsets.all(15),
+        child: Text(
+          _start.toString() + " seconds",
+          style: montserrat(Colors.black, h2, FontWeight.bold),
+        ));
   }
 }
