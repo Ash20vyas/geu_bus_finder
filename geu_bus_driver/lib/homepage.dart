@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:math';
-
+import 'dart:core';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   Position? currentPosition;
   var timer;
   double distance = 0.0;
+  List<dynamic> li = [];
   anotherSlave() async {
     var serviceEnabled = await Geolocator.isLocationServiceEnabled();
     var permission = await Geolocator.checkPermission();
@@ -220,6 +221,12 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       isChecked = false;
                       isStarted = !isStarted;
+                      li.add(busNo);
+                      busNo = -1;
+                      FirebaseFirestore.instance
+                          .collection("availableBuses")
+                          .doc('zbuJ9U2knTagZWBorKP3')
+                          .set({"busesAvailable": li});
                     });
                   } else {
                     if (isChecked) {
@@ -264,82 +271,131 @@ class _HomePageState extends State<HomePage> {
                                                   .length,
                                               (i) => false);
                                           print(optionColor);
-                                          return Column(
-                                            children: [
-                                              Container(
-                                                  height: 225,
-                                                  child: makeList(
-                                                      snapshot: snapshot)),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
+                                          if (optionColor.length == 0) {
+                                            return Container(
+                                              child: Column(
                                                 children: [
-                                                  Expanded(
-                                                    child: Container(
-                                                      child: InkWell(
-                                                        child: Container(
-                                                          height: 40,
-                                                          child: Center(
-                                                              child: Text(
-                                                                  "Cancel")),
-                                                        ),
-                                                        onTap: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
+                                                  Container(
+                                                    height: 225,
+                                                    child: Center(
+                                                      child: Text(
+                                                        "No Buses Available",
+                                                        style: montserrat(
+                                                            black, h2),
                                                       ),
                                                     ),
                                                   ),
-                                                  Expanded(
-                                                    child: Container(
-                                                      child: InkWell(
-                                                        child: Container(
-                                                          height: 40,
-                                                          child: Center(
-                                                              child: Text(
-                                                                  "Continue")),
+                                                  Container(
+                                                    child: InkWell(
+                                                      child: Container(
+                                                        height: 40,
+                                                        child: Center(
+                                                            child:
+                                                                Text("Cancel")),
+                                                      ),
+                                                      onTap: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          } else {
+                                            return Column(
+                                              children: [
+                                                Container(
+                                                    height: 225,
+                                                    child: makeList(
+                                                        snapshot: snapshot)),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Container(
+                                                        child: InkWell(
+                                                          child: Container(
+                                                            height: 40,
+                                                            child: Center(
+                                                                child: Text(
+                                                                    "Cancel")),
+                                                          ),
+                                                          onTap: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
                                                         ),
-                                                        onTap: () {
-                                                          if (busNo == -1) {
-                                                            Navigator.pop(
-                                                                context);
-                                                            var snackbar =
-                                                                SnackBar(
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .red,
-                                                                    content:
-                                                                        Text(
-                                                                      "Select a bus first.",
-                                                                      style: montserrat(
-                                                                          Colors
-                                                                              .white,
-                                                                          h3,
-                                                                          FontWeight
-                                                                              .w600),
-                                                                    ));
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                                    snackbar);
-                                                          } else {
-                                                            Navigator.pop(
-                                                                context);
-                                                            setState(() {
-                                                              isStarted =
-                                                                  !isStarted;
-                                                              anotherSlave();
-                                                            });
-                                                          }
-                                                        },
                                                       ),
                                                     ),
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          );
+                                                    Expanded(
+                                                      child: Container(
+                                                        child: InkWell(
+                                                          child: Container(
+                                                            height: 40,
+                                                            child: Center(
+                                                                child: Text(
+                                                                    "Continue")),
+                                                          ),
+                                                          onTap: () {
+                                                            if (busNo == -1) {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              var snackbar =
+                                                                  SnackBar(
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .red,
+                                                                      content:
+                                                                          Text(
+                                                                        "Select a bus first.",
+                                                                        style: montserrat(
+                                                                            Colors.white,
+                                                                            h3,
+                                                                            FontWeight.w600),
+                                                                      ));
+                                                              ScaffoldMessenger
+                                                                      .of(
+                                                                          context)
+                                                                  .showSnackBar(
+                                                                      snackbar);
+                                                            } else {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              setState(() {
+                                                                isStarted =
+                                                                    !isStarted;
+                                                                li = snapshot
+                                                                        .data!
+                                                                        .docs[0]
+                                                                    [
+                                                                    'busesAvailable'];
+                                                                li.remove(
+                                                                    busNo);
+                                                                FirebaseFirestore
+                                                                    .instance
+                                                                    .collection(
+                                                                        "availableBuses")
+                                                                    .doc(
+                                                                        'zbuJ9U2knTagZWBorKP3')
+                                                                    .set({
+                                                                  "busesAvailable":
+                                                                      li
+                                                                });
+                                                                anotherSlave();
+                                                              });
+                                                            }
+                                                          },
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            );
+                                          }
+                                          ;
                                         } else {
                                           return CircularProgressIndicator();
                                         }
