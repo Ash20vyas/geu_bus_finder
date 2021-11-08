@@ -43,36 +43,40 @@ class _HomePageState extends State<HomePage> {
         await Geolocator.getCurrentPosition(
                 desiredAccuracy: LocationAccuracy.bestForNavigation)
             .then((Position position) async {
-          Position? temp = currentPosition;
-          print(temp);
-          currentPosition = position;
-          double _coordinateDistance(lat1, lon1, lat2, lon2) {
-            var p = 0.017453292519943295;
-            var c = cos;
-            var a = 0.5 -
-                c((lat2 - lat1) * p) / 2 +
-                c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-            return 1000 * 12742 * asin(sqrt(a));
-          }
+          if (currentPosition == null) {
+            currentPosition = position;
+          } else {
+            Position temp = currentPosition!;
+            print(temp);
+            currentPosition = position;
+            double _coordinateDistance(lat1, lon1, lat2, lon2) {
+              var p = 0.017453292519943295;
+              var c = cos;
+              var a = 0.5 -
+                  c((lat2 - lat1) * p) / 2 +
+                  c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+              return 1000 * 12742 * asin(sqrt(a));
+            }
 
-          distance += _coordinateDistance(
-            temp!.latitude,
-            temp.longitude,
-            currentPosition!.latitude,
-            currentPosition!.longitude,
-          );
-          if (distance > 2) {
-            dist = distance;
-            total += dist;
-            distance = 0.0;
-            d.busNo = busNo;
-            d.driverName = driverName;
-            d.phoneNumber = phoneNumber;
-            d.latitude = currentPosition!.latitude;
-            d.longitude = currentPosition!.longitude;
-            d.total = total;
-            await model.updateData(d);
-            setState(() {});
+            distance += _coordinateDistance(
+              temp.latitude,
+              temp.longitude,
+              currentPosition!.latitude,
+              currentPosition!.longitude,
+            );
+            if (distance > 2) {
+              dist = distance;
+              total += dist;
+              distance = 0.0;
+              d.busNo = busNo;
+              d.driverName = driverName;
+              d.phoneNumber = phoneNumber;
+              d.latitude = currentPosition!.latitude;
+              d.longitude = currentPosition!.longitude;
+              d.total = total;
+              await model.updateData(d);
+              setState(() {});
+            }
           }
         }).catchError((e) {
           print(e);
@@ -320,15 +324,12 @@ class _HomePageState extends State<HomePage> {
                                                                 .showSnackBar(
                                                                     snackbar);
                                                           } else {
-                                                            print(busNo);
-                                                            print(driverName);
-                                                            print(phoneNumber);
                                                             Navigator.pop(
                                                                 context);
                                                             setState(() {
                                                               isStarted =
                                                                   !isStarted;
-                                                              slave();
+                                                              anotherSlave();
                                                             });
                                                           }
                                                         },
