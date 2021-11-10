@@ -3,12 +3,15 @@ import 'dart:math';
 import 'dart:core';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:geu_bus_driver/designs.dart';
 import 'package:geu_bus_driver/firebasemodel.dart';
-
+import 'package:geu_bus_driver/loginpage.dart';
+import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'main.dart';
 
 bool isStarted = false;
@@ -31,7 +34,7 @@ class _HomePageState extends State<HomePage> {
   double total = 0.0;
   bool isChecked = false;
   bool isFuckingLoading = false;
-
+  late String time;
   Position? currentPosition;
   var timer;
   double distance = 0.0;
@@ -115,319 +118,543 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 20,
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
+        backgroundColor: Colors.white,
         body: Stack(
-      children: [
-        AnimatedContainer(
-          duration: Duration(microseconds: 350),
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-            begin: Alignment.bottomRight,
-            end: Alignment.topLeft,
-            colors: [
-              isStarted ? Color(0xffF08A8A) : Colors.white,
-              isStarted ? Color(0xffF08A8A) : Colors.white,
-              isStarted ? Color(0xffF08A8A).withOpacity(0.2) : Colors.white,
-            ],
-          )),
-        ),
-        AnimatedSwitcher(
-          duration: Duration(milliseconds: 350),
-          child: isStarted
-              ? Container(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.2,
-                      ),
-                      SubHeading(value: "Name"),
-                      Heading(value: driverName),
-                      SubHeading(value: "Time Elapsed"),
-                      TimerWidget(),
-                      SubHeading(value: "Bus No."),
-                      Heading(
-                        value: busNo.toString(),
-                      ),
-                    ],
-                  ),
-                )
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.2,
-                    ),
-                    SubHeading(value: "Name"),
-                    Heading(value: driverName),
-                  ],
-                ),
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Row(children: [
-              Container(
-                margin: EdgeInsets.only(left: 5),
-                child: Checkbox(
-                  value: this.isChecked,
-                  onChanged: (bool? value) {
-                    if (!isStarted) {
-                      setState(() {
-                        this.isChecked = value!;
-                      });
-                    }
-                  },
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.all(15),
-                child: Text(
-                  "I acknowledge that I’m ready to\nstart the bus.",
-                  style: poppins(black, h4, FontWeight.normal),
-                ),
-              )
-            ]),
-            AnimatedContainer(
-              duration: Duration(milliseconds: 350),
-              height: MediaQuery.of(context).size.height * 0.15,
-              width: double.infinity,
-              margin: EdgeInsets.fromLTRB(
-                  15,
-                  MediaQuery.of(context).size.height * 0.02,
-                  15,
-                  MediaQuery.of(context).size.height * 0.07),
-              decoration: BoxDecoration(
-                color: isStarted ? Color(0xffFA9587) : Color(0xff9CE89F),
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade600,
-                    offset: const Offset(
-                      5.0,
-                      5.0,
+            isStarted
+                ? Container(
+                    alignment: Alignment.topCenter,
+                    height: MediaQuery.of(context).size.height * 0.66,
+                    child: SingleChildScrollView(
+                      child: Container(
+                        child: Column(
+                          children: [
+                            Container(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        margin: EdgeInsets.only(
+                                            bottom: 10, left: 15),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                                margin:
+                                                    EdgeInsets.only(bottom: 10),
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  'START TIME',
+                                                  style: montserrat(
+                                                      Colors.black,
+                                                      h4,
+                                                      FontWeight.w300),
+                                                )),
+                                            Container(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  time,
+                                                  style: montserrat(black, h4,
+                                                      FontWeight.w600),
+                                                ))
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(top: 20),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                  margin: EdgeInsets.only(
+                                                      bottom: 10, left: 10),
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    'ELAPSED TIME',
+                                                    style: montserrat(
+                                                        Colors.black,
+                                                        h4,
+                                                        FontWeight.w300),
+                                                  )),
+                                              TimerWidget()
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                            margin: EdgeInsets.all(15),
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              'BUS NO. ' + busNo.toString(),
+                                              style: montserrat(black, h1 + 5,
+                                                  FontWeight.w300),
+                                            ))
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.only(
+                                        top: 50, left: 15, right: 15),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey.shade400,
+                                            width: 0.5),
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Colors.white),
+                                    child: Container(
+                                      margin: EdgeInsets.all(15),
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                              margin: EdgeInsets.only(
+                                                  bottom: 20, top: 5),
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "RIDE DETAILS",
+                                                style: montserrat(Colors.black,
+                                                    h4, FontWeight.w400),
+                                              )),
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                bottom: 20, top: 5),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Container(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        driverName
+                                                            .toUpperCase(),
+                                                        style: montserrat(
+                                                            Colors.black,
+                                                            h2,
+                                                            FontWeight.w700),
+                                                      )),
+                                                ),
+                                                Expanded(
+                                                  child: Container(
+                                                      alignment:
+                                                          Alignment.centerRight,
+                                                      child: Text(
+                                                        phoneNumber.toString(),
+                                                        style: montserrat(
+                                                            Colors.black,
+                                                            h2,
+                                                            FontWeight.w700),
+                                                      )),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    blurRadius: 10.0,
-                    spreadRadius: 2.0,
+                  )
+                : Container(
+                    alignment: Alignment.topCenter,
+                    height: MediaQuery.of(context).size.height * 0.66,
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            FirebaseAuth.instance.signOut();
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage()));
+                            var b = Hive.box('login');
+                            b.put('login', false);
+                            b.put('phoneNumber', '');
+                            final snackBar = SnackBar(
+                              duration: Duration(milliseconds: 500),
+                              content: Text(
+                                "Logged out successfully.",
+                                style: montserrat(
+                                    Colors.black, h4, FontWeight.bold),
+                              ),
+                              backgroundColor: Colors.green,
+                            );
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                alignment: Alignment.centerRight,
+                                margin: EdgeInsets.all(15),
+                                height: 65,
+                                width: 125,
+                                decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(15)),
+                                child: Center(
+                                  child: Text(
+                                    'LOGOUT',
+                                    style: montserrat(
+                                        Colors.black, h4, FontWeight.w600),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Colors.grey.shade400, width: 0.5),
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.white),
+                          child: Container(
+                            margin: EdgeInsets.all(15),
+                            child: Column(
+                              children: [
+                                Container(
+                                    margin: EdgeInsets.only(bottom: 20, top: 5),
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "RIDE DETAILS",
+                                      style: montserrat(
+                                          Colors.black, h4, FontWeight.w400),
+                                    )),
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 20, top: 5),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              driverName.toUpperCase(),
+                                              style: montserrat(Colors.black,
+                                                  h2, FontWeight.w700),
+                                            )),
+                                      ),
+                                      Expanded(
+                                        child: Container(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              phoneNumber.toString(),
+                                              style: montserrat(Colors.black,
+                                                  h2, FontWeight.w700),
+                                            )),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+            Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  isStarted
+                      ? Container()
+                      : Row(children: [
+                          Container(
+                            height: MediaQuery.of(context).size.height * 0.1,
+                            margin: EdgeInsets.only(left: 5),
+                            child: Checkbox(
+                              value: isChecked,
+                              onChanged: (bool? value) {
+                                if (!isStarted) {
+                                  setState(() {
+                                    isChecked = value!;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.all(15),
+                            child: Text(
+                              "I acknowledge that I’m ready to\nstart the bus.",
+                              style: poppins(black, h4, FontWeight.normal),
+                            ),
+                          )
+                        ]),
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 350),
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    width: double.infinity,
+                    margin: EdgeInsets.fromLTRB(
+                        15,
+                        MediaQuery.of(context).size.height * 0.02,
+                        15,
+                        MediaQuery.of(context).size.height * 0.07),
+                    decoration: BoxDecoration(
+                      color: isStarted ? logoRed : Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.shade400,
+                          offset: const Offset(
+                            5.0,
+                            5.0,
+                          ),
+                          blurRadius: 10.0,
+                          spreadRadius: 2.0,
+                        ),
+                      ],
+                    ),
+                    child: TextButton(
+                        child: Text(isStarted ? "END" : "START THE TRIP",
+                            style: montserrat(
+                                isStarted ? Color(0xffED4646) : Colors.black,
+                                h2,
+                                FontWeight.bold)),
+                        onPressed: () {
+                          if (isStarted) {
+                            setState(() {
+                              isChecked = false;
+                              isStarted = !isStarted;
+                              li.add(busNo);
+                              busNo = -1;
+                              FirebaseFirestore.instance
+                                  .collection("availableBuses")
+                                  .doc('zbuJ9U2knTagZWBorKP3')
+                                  .set({"busesAvailable": li});
+                            });
+                          } else {
+                            if (isChecked) {
+                              void dialogBox(BuildContext context) {
+                                showGeneralDialog(
+                                    // barrierColor: black.withOpacity(0.3),
+                                    context: context,
+                                    pageBuilder: (_, __, ___) {
+                                      return Align(
+                                        alignment: Alignment.center,
+                                        child: Container(
+                                          padding: EdgeInsets.all(10),
+                                          margin: EdgeInsets.only(
+                                              left: 15, right: 15),
+                                          alignment: Alignment.center,
+                                          height: 300,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey.shade700,
+                                                spreadRadius: 6,
+                                                blurRadius: 9,
+                                                offset: const Offset(0,
+                                                    3), // changes position of shadow
+                                              ),
+                                            ],
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            border: Border.all(
+                                                color: Colors.grey.shade300),
+                                          ),
+                                          child: Material(
+                                            child: StreamBuilder<QuerySnapshot>(
+                                              stream: FirebaseFirestore.instance
+                                                  .collection("availableBuses")
+                                                  .snapshots(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  optionColor = List<
+                                                          bool>.generate(
+                                                      snapshot
+                                                          .data!
+                                                          .docs[0]
+                                                              ['busesAvailable']
+                                                          .length,
+                                                      (i) => false);
+                                                  print(optionColor);
+                                                  if (optionColor.length == 0) {
+                                                    return Container(
+                                                      child: Column(
+                                                        children: [
+                                                          Container(
+                                                            height: 225,
+                                                            child: Center(
+                                                              child: Text(
+                                                                "No Buses Available",
+                                                                style:
+                                                                    montserrat(
+                                                                        black,
+                                                                        h2),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            child: InkWell(
+                                                              child: Container(
+                                                                height: 40,
+                                                                child: Center(
+                                                                    child: Text(
+                                                                        "Cancel")),
+                                                              ),
+                                                              onTap: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    return Column(
+                                                      children: [
+                                                        Container(
+                                                            height: 225,
+                                                            child: makeList(
+                                                                snapshot:
+                                                                    snapshot)),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceAround,
+                                                          children: [
+                                                            Expanded(
+                                                              child: Container(
+                                                                child: InkWell(
+                                                                  child:
+                                                                      Container(
+                                                                    height: 40,
+                                                                    child: Center(
+                                                                        child: Text(
+                                                                            "Cancel")),
+                                                                  ),
+                                                                  onTap: () {
+                                                                    busNo = -1;
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              child: Container(
+                                                                child: InkWell(
+                                                                  child:
+                                                                      Container(
+                                                                    height: 40,
+                                                                    child: Center(
+                                                                        child: Text(
+                                                                            "Continue")),
+                                                                  ),
+                                                                  onTap: () {
+                                                                    if (busNo ==
+                                                                        -1) {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                      var snackbar = SnackBar(
+                                                                          backgroundColor: Colors.red,
+                                                                          content: Text(
+                                                                            "Select a bus first.",
+                                                                            style: montserrat(
+                                                                                Colors.white,
+                                                                                h3,
+                                                                                FontWeight.w600),
+                                                                          ));
+                                                                      ScaffoldMessenger.of(
+                                                                              context)
+                                                                          .showSnackBar(
+                                                                              snackbar);
+                                                                    } else {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                      setState(
+                                                                          () {
+                                                                        time = DateFormat.jm()
+                                                                            .format(DateTime.now());
+                                                                        isStarted =
+                                                                            !isStarted;
+                                                                        li = snapshot
+                                                                            .data!
+                                                                            .docs[0]['busesAvailable'];
+                                                                        li.remove(
+                                                                            busNo);
+                                                                        FirebaseFirestore
+                                                                            .instance
+                                                                            .collection(
+                                                                                "availableBuses")
+                                                                            .doc(
+                                                                                'zbuJ9U2knTagZWBorKP3')
+                                                                            .set({
+                                                                          "busesAvailable":
+                                                                              li
+                                                                        });
+                                                                        anotherSlave();
+                                                                      });
+                                                                    }
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        )
+                                                      ],
+                                                    );
+                                                  }
+                                                  ;
+                                                } else {
+                                                  return CircularProgressIndicator();
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              }
+
+                              dialogBox(context);
+                            } else {
+                              final snackBar = SnackBar(
+                                content: Text(
+                                  'Please Acknowledge',
+                                  style: montserrat(
+                                      Colors.white, h3, FontWeight.normal),
+                                ),
+                                backgroundColor: Colors.red,
+                                duration: Duration(milliseconds: 500),
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            }
+                          }
+                        }),
                   ),
                 ],
               ),
-              child: TextButton(
-                child: Text(isStarted ? "END" : "START",
-                    style: montserrat(
-                        isStarted ? Color(0xffED4646) : Color(0xff5EA16C),
-                        h1 + 15,
-                        FontWeight.bold)),
-                onPressed: () {
-                  if (isStarted) {
-                    setState(() {
-                      isChecked = false;
-                      isStarted = !isStarted;
-                      li.add(busNo);
-                      busNo = -1;
-                      FirebaseFirestore.instance
-                          .collection("availableBuses")
-                          .doc('zbuJ9U2knTagZWBorKP3')
-                          .set({"busesAvailable": li});
-                    });
-                  } else {
-                    if (isChecked) {
-                      void dialogBox(BuildContext context) {
-                        showGeneralDialog(
-                            // barrierColor: black.withOpacity(0.3),
-                            context: context,
-                            pageBuilder: (_, __, ___) {
-                              return Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  padding: EdgeInsets.all(10),
-                                  margin: EdgeInsets.only(left: 15, right: 15),
-                                  alignment: Alignment.center,
-                                  height: 300,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.shade700,
-                                        spreadRadius: 6,
-                                        blurRadius: 9,
-                                        offset: const Offset(
-                                            0, 3), // changes position of shadow
-                                      ),
-                                    ],
-                                    borderRadius: BorderRadius.circular(15),
-                                    border:
-                                        Border.all(color: Colors.grey.shade300),
-                                  ),
-                                  child: Material(
-                                    child: StreamBuilder<QuerySnapshot>(
-                                      stream: FirebaseFirestore.instance
-                                          .collection("availableBuses")
-                                          .snapshots(),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          optionColor = List<bool>.generate(
-                                              snapshot
-                                                  .data!
-                                                  .docs[0]['busesAvailable']
-                                                  .length,
-                                              (i) => false);
-                                          print(optionColor);
-                                          if (optionColor.length == 0) {
-                                            return Container(
-                                              child: Column(
-                                                children: [
-                                                  Container(
-                                                    height: 225,
-                                                    child: Center(
-                                                      child: Text(
-                                                        "No Buses Available",
-                                                        style: montserrat(
-                                                            black, h2),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    child: InkWell(
-                                                      child: Container(
-                                                        height: 40,
-                                                        child: Center(
-                                                            child:
-                                                                Text("Cancel")),
-                                                      ),
-                                                      onTap: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          } else {
-                                            return Column(
-                                              children: [
-                                                Container(
-                                                    height: 225,
-                                                    child: makeList(
-                                                        snapshot: snapshot)),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceAround,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Container(
-                                                        child: InkWell(
-                                                          child: Container(
-                                                            height: 40,
-                                                            child: Center(
-                                                                child: Text(
-                                                                    "Cancel")),
-                                                          ),
-                                                          onTap: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Container(
-                                                        child: InkWell(
-                                                          child: Container(
-                                                            height: 40,
-                                                            child: Center(
-                                                                child: Text(
-                                                                    "Continue")),
-                                                          ),
-                                                          onTap: () {
-                                                            if (busNo == -1) {
-                                                              Navigator.pop(
-                                                                  context);
-                                                              var snackbar =
-                                                                  SnackBar(
-                                                                      backgroundColor:
-                                                                          Colors
-                                                                              .red,
-                                                                      content:
-                                                                          Text(
-                                                                        "Select a bus first.",
-                                                                        style: montserrat(
-                                                                            Colors.white,
-                                                                            h3,
-                                                                            FontWeight.w600),
-                                                                      ));
-                                                              ScaffoldMessenger
-                                                                      .of(
-                                                                          context)
-                                                                  .showSnackBar(
-                                                                      snackbar);
-                                                            } else {
-                                                              Navigator.pop(
-                                                                  context);
-                                                              setState(() {
-                                                                isStarted =
-                                                                    !isStarted;
-                                                                li = snapshot
-                                                                        .data!
-                                                                        .docs[0]
-                                                                    [
-                                                                    'busesAvailable'];
-                                                                li.remove(
-                                                                    busNo);
-                                                                FirebaseFirestore
-                                                                    .instance
-                                                                    .collection(
-                                                                        "availableBuses")
-                                                                    .doc(
-                                                                        'zbuJ9U2knTagZWBorKP3')
-                                                                    .set({
-                                                                  "busesAvailable":
-                                                                      li
-                                                                });
-                                                                anotherSlave();
-                                                              });
-                                                            }
-                                                          },
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                )
-                                              ],
-                                            );
-                                          }
-                                          ;
-                                        } else {
-                                          return CircularProgressIndicator();
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              );
-                            });
-                      }
-
-                      dialogBox(context);
-                    } else {
-                      final snackBar = SnackBar(
-                        content: Text(
-                          'Please Acknowledge',
-                          style:
-                              montserrat(Colors.white, h3, FontWeight.normal),
-                        ),
-                        backgroundColor: Colors.red,
-                        duration: Duration(milliseconds: 500),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    }
-                  }
-                },
-              ),
             ),
           ],
-        ),
-      ],
-    ));
+        ));
   }
 }
 
@@ -642,14 +869,31 @@ class _TimerWidgetState extends State<TimerWidget> {
     super.initState();
   }
 
+  String calc(_start) {
+    String sec = (_start % 60).toString();
+    if (sec.length == 1) {
+      sec = '0' + sec;
+    }
+    int min = _start ~/ 60;
+    String hrs = (min ~/ 60).toString();
+    if (hrs.length == 1) {
+      hrs = '0' + hrs;
+    }
+    String mn = (min % 60).toString();
+    if (mn.length == 1) {
+      mn = '0' + mn;
+    }
+    return hrs + ':' + mn + ':' + sec;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
         alignment: Alignment.bottomLeft,
         margin: EdgeInsets.all(15),
         child: Text(
-          _start.toString() + " seconds",
-          style: montserrat(Colors.black, h2, FontWeight.bold),
+          calc(_start),
+          style: montserrat(black, h4, FontWeight.w600),
         ));
   }
 }
