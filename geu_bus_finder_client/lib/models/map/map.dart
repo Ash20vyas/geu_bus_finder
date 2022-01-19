@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
   bool isFuckingLoading = false;
   bool internetConnection = true;
 
-  _getCurrentLocation() async {
+  slave() async {
     //loading screen on
     setState(() {
       isFuckingLoading = true;
@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     // TODO: implement initState
-    _getCurrentLocation();
+    slave();
     super.initState();
   }
 

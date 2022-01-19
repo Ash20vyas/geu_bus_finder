@@ -1,6 +1,5 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geu_bus_driver/data.dart';
+import 'package:geu_bus_driver/homepage.dart';
 
 class Data {
   late String driverName;
@@ -14,6 +13,7 @@ class Data {
     return {
       "driverName": driverName,
       "busNo": busNo,
+      "Log": log,
       "phoneNumber": phoneNumber,
       "latitude": latitude,
       "longitude": longitude,
@@ -27,15 +27,10 @@ class FirebaseModal {
 
   bool updateData(Data data) {
     //check our data object has all values before it goes to cloud.
-    if (data.driverName == null ||
-        data.busNo == null ||
-        data.phoneNumber == null) {
+    if (data.driverName == null || data.busNo == null || data.phoneNumber == null) {
       return false;
     } else {
-      instance
-          .collection("root")
-          .doc(data.busNo.toString())
-          .set(data.createMap());
+      instance.collection("root").doc(data.busNo.toString()).set(data.createMap());
       return true;
     }
   }
