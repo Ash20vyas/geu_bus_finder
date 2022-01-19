@@ -49,7 +49,9 @@ class _HomePageState extends State<HomePage> {
 
     timer = Timer.periodic(Duration(seconds: 5), (timer) async {
       if (isStarted) {
-        await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation).then((Position position) async {
+        await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.bestForNavigation)
+            .then((Position position) async {
           if (currentPosition == null) {
             currentPosition = position;
           } else {
@@ -59,7 +61,9 @@ class _HomePageState extends State<HomePage> {
             double _coordinateDistance(lat1, lon1, lat2, lon2) {
               var p = 0.017453292519943295;
               var c = cos;
-              var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+              var a = 0.5 -
+                  c((lat2 - lat1) * p) / 2 +
+                  c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
               return 1000 * 12742 * asin(sqrt(a));
             }
 
@@ -69,7 +73,7 @@ class _HomePageState extends State<HomePage> {
               currentPosition!.latitude,
               currentPosition!.longitude,
             );
-            if (distance > 2) {
+            if (distance > 2 && busNo != -1) {
               log.add(GeoPoint(position.latitude, position.longitude));
               dist = distance;
               total += dist;
@@ -94,7 +98,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   slave() {
-    FirebaseFirestore.instance.collection('driver').snapshots().listen((QuerySnapshot querySnapshot) async {
+    FirebaseFirestore.instance
+        .collection('driver')
+        .snapshots()
+        .listen((QuerySnapshot querySnapshot) async {
       for (int i = 0; i < querySnapshot.docs.length; i++) {
         if (phoneNumber == querySnapshot.docs[i]["phoneNumber"]) {
           setState(() {
@@ -136,25 +143,32 @@ class _HomePageState extends State<HomePage> {
                               child: Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
                                         alignment: Alignment.centerLeft,
-                                        margin: EdgeInsets.only(bottom: 10, left: 15),
+                                        margin: EdgeInsets.only(
+                                            bottom: 10, left: 15),
                                         child: Column(
                                           children: [
                                             Container(
-                                                margin: EdgeInsets.only(bottom: 10),
+                                                margin:
+                                                    EdgeInsets.only(bottom: 10),
                                                 alignment: Alignment.centerLeft,
                                                 child: Text(
                                                   'START TIME',
-                                                  style: montserrat(Colors.black, h4, FontWeight.w300),
+                                                  style: montserrat(
+                                                      Colors.black,
+                                                      h4,
+                                                      FontWeight.w300),
                                                 )),
                                             Container(
                                                 alignment: Alignment.centerLeft,
                                                 child: Text(
                                                   time,
-                                                  style: montserrat(black, h4, FontWeight.w600),
+                                                  style: montserrat(black, h4,
+                                                      FontWeight.w600),
                                                 ))
                                           ],
                                         ),
@@ -164,18 +178,24 @@ class _HomePageState extends State<HomePage> {
                                   Container(
                                     margin: EdgeInsets.only(top: 20),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Container(
                                           alignment: Alignment.centerLeft,
                                           child: Column(
                                             children: [
                                               Container(
-                                                  margin: EdgeInsets.only(bottom: 10, left: 10),
-                                                  alignment: Alignment.centerLeft,
+                                                  margin: EdgeInsets.only(
+                                                      bottom: 10, left: 10),
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Text(
                                                     'ELAPSED TIME',
-                                                    style: montserrat(Colors.black, h4, FontWeight.w300),
+                                                    style: montserrat(
+                                                        Colors.black,
+                                                        h4,
+                                                        FontWeight.w300),
                                                   )),
                                               TimerWidget()
                                             ],
@@ -186,43 +206,62 @@ class _HomePageState extends State<HomePage> {
                                             alignment: Alignment.centerRight,
                                             child: Text(
                                               'BUS NO. ' + busNo.toString(),
-                                              style: montserrat(black, h1 + 5, FontWeight.w300),
+                                              style: montserrat(black, h1 + 5,
+                                                  FontWeight.w300),
                                             ))
                                       ],
                                     ),
                                   ),
                                   Container(
-                                    margin: EdgeInsets.only(top: 50, left: 15, right: 15),
-                                    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade400, width: 0.5), borderRadius: BorderRadius.circular(5), color: Colors.white),
+                                    margin: EdgeInsets.only(
+                                        top: 50, left: 15, right: 15),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey.shade400,
+                                            width: 0.5),
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Colors.white),
                                     child: Container(
                                       margin: EdgeInsets.all(15),
                                       child: Column(
                                         children: [
                                           Container(
-                                              margin: EdgeInsets.only(bottom: 20, top: 5),
+                                              margin: EdgeInsets.only(
+                                                  bottom: 20, top: 5),
                                               alignment: Alignment.centerLeft,
                                               child: Text(
                                                 "RIDE DETAILS",
-                                                style: montserrat(Colors.black, h4, FontWeight.w400),
+                                                style: montserrat(Colors.black,
+                                                    h4, FontWeight.w400),
                                               )),
                                           Container(
-                                            margin: EdgeInsets.only(bottom: 20, top: 5),
+                                            margin: EdgeInsets.only(
+                                                bottom: 20, top: 5),
                                             child: Row(
                                               children: [
                                                 Expanded(
                                                   child: Container(
-                                                      alignment: Alignment.centerLeft,
+                                                      alignment:
+                                                          Alignment.centerLeft,
                                                       child: Text(
-                                                        driverName.toUpperCase(),
-                                                        style: montserrat(Colors.black, h2, FontWeight.w700),
+                                                        driverName
+                                                            .toUpperCase(),
+                                                        style: montserrat(
+                                                            Colors.black,
+                                                            h2,
+                                                            FontWeight.w700),
                                                       )),
                                                 ),
                                                 Expanded(
                                                   child: Container(
-                                                      alignment: Alignment.centerRight,
+                                                      alignment:
+                                                          Alignment.centerRight,
                                                       child: Text(
                                                         phoneNumber.toString(),
-                                                        style: montserrat(Colors.black, h2, FontWeight.w700),
+                                                        style: montserrat(
+                                                            Colors.black,
+                                                            h2,
+                                                            FontWeight.w700),
                                                       )),
                                                 ),
                                               ],
@@ -249,7 +288,10 @@ class _HomePageState extends State<HomePage> {
                           onTap: () {
                             FirebaseAuth.instance.signOut();
                             Navigator.pop(context);
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage()));
                             var b = Hive.box('login');
                             b.put('login', false);
                             b.put('phoneNumber', '');
@@ -257,11 +299,13 @@ class _HomePageState extends State<HomePage> {
                               duration: Duration(milliseconds: 500),
                               content: Text(
                                 "Logged out successfully.",
-                                style: montserrat(Colors.black, h4, FontWeight.bold),
+                                style: montserrat(
+                                    Colors.black, h4, FontWeight.bold),
                               ),
                               backgroundColor: Colors.green,
                             );
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -271,11 +315,14 @@ class _HomePageState extends State<HomePage> {
                                 margin: EdgeInsets.all(15),
                                 height: 65,
                                 width: 125,
-                                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(15)),
+                                decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(15)),
                                 child: Center(
                                   child: Text(
                                     'LOGOUT',
-                                    style: montserrat(Colors.black, h4, FontWeight.w600),
+                                    style: montserrat(
+                                        Colors.black, h4, FontWeight.w600),
                                   ),
                                 ),
                               ),
@@ -284,7 +331,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Container(
                           margin: EdgeInsets.all(15),
-                          decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade400, width: 0.5), borderRadius: BorderRadius.circular(5), color: Colors.white),
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Colors.grey.shade400, width: 0.5),
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.white),
                           child: Container(
                             margin: EdgeInsets.all(15),
                             child: Column(
@@ -294,7 +345,8 @@ class _HomePageState extends State<HomePage> {
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       "RIDE DETAILS",
-                                      style: montserrat(Colors.black, h4, FontWeight.w400),
+                                      style: montserrat(
+                                          Colors.black, h4, FontWeight.w400),
                                     )),
                                 Container(
                                   margin: EdgeInsets.only(bottom: 20, top: 5),
@@ -305,7 +357,8 @@ class _HomePageState extends State<HomePage> {
                                             alignment: Alignment.centerLeft,
                                             child: Text(
                                               driverName.toUpperCase(),
-                                              style: montserrat(Colors.black, h2, FontWeight.w700),
+                                              style: montserrat(Colors.black,
+                                                  h2, FontWeight.w700),
                                             )),
                                       ),
                                       Expanded(
@@ -313,7 +366,8 @@ class _HomePageState extends State<HomePage> {
                                             alignment: Alignment.centerRight,
                                             child: Text(
                                               phoneNumber.toString(),
-                                              style: montserrat(Colors.black, h2, FontWeight.w700),
+                                              style: montserrat(Colors.black,
+                                                  h2, FontWeight.w700),
                                             )),
                                       ),
                                     ],
@@ -359,7 +413,11 @@ class _HomePageState extends State<HomePage> {
                     duration: Duration(milliseconds: 350),
                     height: MediaQuery.of(context).size.height * 0.1,
                     width: double.infinity,
-                    margin: EdgeInsets.fromLTRB(15, MediaQuery.of(context).size.height * 0.02, 15, MediaQuery.of(context).size.height * 0.07),
+                    margin: EdgeInsets.fromLTRB(
+                        15,
+                        MediaQuery.of(context).size.height * 0.02,
+                        15,
+                        MediaQuery.of(context).size.height * 0.07),
                     decoration: BoxDecoration(
                       color: isStarted ? logoRed : Colors.white,
                       borderRadius: BorderRadius.circular(15),
@@ -376,7 +434,11 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     child: TextButton(
-                        child: Text(isStarted ? "END" : "START THE TRIP", style: montserrat(isStarted ? Color(0xffED4646) : Colors.black, h2, FontWeight.bold)),
+                        child: Text(isStarted ? "END" : "START THE TRIP",
+                            style: montserrat(
+                                isStarted ? Color(0xffED4646) : Colors.black,
+                                h2,
+                                FontWeight.bold)),
                         onPressed: () {
                           if (isStarted) {
                             setState(() {
@@ -384,7 +446,10 @@ class _HomePageState extends State<HomePage> {
                               isStarted = !isStarted;
                               li.add(busNo);
                               busNo = -1;
-                              FirebaseFirestore.instance.collection("availableBuses").doc('zbuJ9U2knTagZWBorKP3').set({"busesAvailable": li});
+                              FirebaseFirestore.instance
+                                  .collection("availableBuses")
+                                  .doc('zbuJ9U2knTagZWBorKP3')
+                                  .set({"busesAvailable": li});
                             });
                           } else {
                             if (isChecked) {
@@ -397,7 +462,8 @@ class _HomePageState extends State<HomePage> {
                                         alignment: Alignment.center,
                                         child: Container(
                                           padding: EdgeInsets.all(10),
-                                          margin: EdgeInsets.only(left: 15, right: 15),
+                                          margin: EdgeInsets.only(
+                                              left: 15, right: 15),
                                           alignment: Alignment.center,
                                           height: 300,
                                           decoration: BoxDecoration(
@@ -407,18 +473,30 @@ class _HomePageState extends State<HomePage> {
                                                 color: Colors.grey.shade700,
                                                 spreadRadius: 6,
                                                 blurRadius: 9,
-                                                offset: const Offset(0, 3), // changes position of shadow
+                                                offset: const Offset(0,
+                                                    3), // changes position of shadow
                                               ),
                                             ],
-                                            borderRadius: BorderRadius.circular(15),
-                                            border: Border.all(color: Colors.grey.shade300),
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            border: Border.all(
+                                                color: Colors.grey.shade300),
                                           ),
                                           child: Material(
                                             child: StreamBuilder<QuerySnapshot>(
-                                              stream: FirebaseFirestore.instance.collection("availableBuses").snapshots(),
+                                              stream: FirebaseFirestore.instance
+                                                  .collection("availableBuses")
+                                                  .snapshots(),
                                               builder: (context, snapshot) {
                                                 if (snapshot.hasData) {
-                                                  optionColor = List<bool>.generate(snapshot.data!.docs[0]['busesAvailable'].length, (i) => false);
+                                                  optionColor = List<
+                                                          bool>.generate(
+                                                      snapshot
+                                                          .data!
+                                                          .docs[0]
+                                                              ['busesAvailable']
+                                                          .length,
+                                                      (i) => false);
                                                   print(optionColor);
                                                   if (optionColor.length == 0) {
                                                     return Container(
@@ -429,7 +507,10 @@ class _HomePageState extends State<HomePage> {
                                                             child: Center(
                                                               child: Text(
                                                                 "No Buses Available",
-                                                                style: montserrat(black, h2),
+                                                                style:
+                                                                    montserrat(
+                                                                        black,
+                                                                        h2),
                                                               ),
                                                             ),
                                                           ),
@@ -437,10 +518,13 @@ class _HomePageState extends State<HomePage> {
                                                             child: InkWell(
                                                               child: Container(
                                                                 height: 40,
-                                                                child: Center(child: Text("Cancel")),
+                                                                child: Center(
+                                                                    child: Text(
+                                                                        "Cancel")),
                                                               ),
                                                               onTap: () {
-                                                                Navigator.pop(context);
+                                                                Navigator.pop(
+                                                                    context);
                                                               },
                                                             ),
                                                           ),
@@ -450,20 +534,30 @@ class _HomePageState extends State<HomePage> {
                                                   } else {
                                                     return Column(
                                                       children: [
-                                                        Container(height: 225, child: makeList(snapshot: snapshot)),
+                                                        Container(
+                                                            height: 225,
+                                                            child: makeList(
+                                                                snapshot:
+                                                                    snapshot)),
                                                         Row(
-                                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceAround,
                                                           children: [
                                                             Expanded(
                                                               child: Container(
                                                                 child: InkWell(
-                                                                  child: Container(
+                                                                  child:
+                                                                      Container(
                                                                     height: 40,
-                                                                    child: Center(child: Text("Cancel")),
+                                                                    child: Center(
+                                                                        child: Text(
+                                                                            "Cancel")),
                                                                   ),
                                                                   onTap: () {
                                                                     busNo = -1;
-                                                                    Navigator.pop(context);
+                                                                    Navigator.pop(
+                                                                        context);
                                                                   },
                                                                 ),
                                                               ),
@@ -471,28 +565,55 @@ class _HomePageState extends State<HomePage> {
                                                             Expanded(
                                                               child: Container(
                                                                 child: InkWell(
-                                                                  child: Container(
+                                                                  child:
+                                                                      Container(
                                                                     height: 40,
-                                                                    child: Center(child: Text("Continue")),
+                                                                    child: Center(
+                                                                        child: Text(
+                                                                            "Continue")),
                                                                   ),
                                                                   onTap: () {
-                                                                    if (busNo == -1) {
-                                                                      Navigator.pop(context);
+                                                                    if (busNo ==
+                                                                        -1) {
+                                                                      Navigator.pop(
+                                                                          context);
                                                                       var snackbar = SnackBar(
                                                                           backgroundColor: Colors.red,
                                                                           content: Text(
                                                                             "Select a bus first.",
-                                                                            style: montserrat(Colors.white, h3, FontWeight.w600),
+                                                                            style: montserrat(
+                                                                                Colors.white,
+                                                                                h3,
+                                                                                FontWeight.w600),
                                                                           ));
-                                                                      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                                                                      ScaffoldMessenger.of(
+                                                                              context)
+                                                                          .showSnackBar(
+                                                                              snackbar);
                                                                     } else {
-                                                                      Navigator.pop(context);
-                                                                      setState(() {
-                                                                        time = DateFormat.jm().format(DateTime.now());
-                                                                        isStarted = !isStarted;
-                                                                        li = snapshot.data!.docs[0]['busesAvailable'];
-                                                                        li.remove(busNo);
-                                                                        FirebaseFirestore.instance.collection("availableBuses").doc('zbuJ9U2knTagZWBorKP3').set({"busesAvailable": li});
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                      setState(
+                                                                          () {
+                                                                        time = DateFormat.jm()
+                                                                            .format(DateTime.now());
+                                                                        isStarted =
+                                                                            !isStarted;
+                                                                        li = snapshot
+                                                                            .data!
+                                                                            .docs[0]['busesAvailable'];
+                                                                        li.remove(
+                                                                            busNo);
+                                                                        FirebaseFirestore
+                                                                            .instance
+                                                                            .collection(
+                                                                                "availableBuses")
+                                                                            .doc(
+                                                                                'zbuJ9U2knTagZWBorKP3')
+                                                                            .set({
+                                                                          "busesAvailable":
+                                                                              li
+                                                                        });
                                                                         anotherSlave();
                                                                       });
                                                                     }
@@ -522,12 +643,14 @@ class _HomePageState extends State<HomePage> {
                               final snackBar = SnackBar(
                                 content: Text(
                                   'Please Acknowledge',
-                                  style: montserrat(Colors.white, h3, FontWeight.normal),
+                                  style: montserrat(
+                                      Colors.white, h3, FontWeight.normal),
                                 ),
                                 backgroundColor: Colors.red,
                                 duration: Duration(milliseconds: 500),
                               );
-                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
                             }
                           }
                         }),
@@ -632,7 +755,8 @@ class _makeListState extends State<makeList> {
                   Container(
                     alignment: Alignment.topLeft,
                     margin: EdgeInsets.only(left: 15, top: 5, bottom: 5),
-                    child: Text("All available buses", style: montserrat(Colors.black, h2)),
+                    child: Text("All available buses",
+                        style: montserrat(Colors.black, h2)),
                   ),
                   Container(
                     alignment: Alignment.topLeft,
@@ -646,21 +770,32 @@ class _makeListState extends State<makeList> {
                     height: 30,
                     alignment: Alignment.topLeft,
                     margin: EdgeInsets.only(left: 15, top: 5, bottom: 5),
-                    decoration: BoxDecoration(color: optionColor[index] ? Colors.blue : Colors.white, borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.grey.shade400)),
+                    decoration: BoxDecoration(
+                        color: optionColor[index] ? Colors.blue : Colors.white,
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey.shade400)),
                     child: InkWell(
                       onTap: () {
                         setState(() {
-                          optionColor = List<bool>.generate(widget.snapshot.data!.docs[0]['busesAvailable'].length, (i) => false);
+                          optionColor = List<bool>.generate(
+                              widget.snapshot.data!.docs[0]['busesAvailable']
+                                  .length,
+                              (i) => false);
                           optionColor[index] = true;
-                          busNo = widget.snapshot.data!.docs[0]['busesAvailable'][index];
+                          busNo = widget.snapshot.data!.docs[0]
+                              ['busesAvailable'][index];
                         });
                       },
                       child: Container(
                         alignment: Alignment.centerLeft,
                         margin: EdgeInsets.only(left: 5),
                         child: Text(
-                          "Bus No. " + widget.snapshot.data!.docs[0]['busesAvailable'][index].toString(),
-                          style: montserrat(optionColor[index] ? Colors.white : black),
+                          "Bus No. " +
+                              widget.snapshot.data!
+                                  .docs[0]['busesAvailable'][index]
+                                  .toString(),
+                          style: montserrat(
+                              optionColor[index] ? Colors.white : black),
                         ),
                       ),
                     ),
@@ -673,21 +808,29 @@ class _makeListState extends State<makeList> {
             height: 30,
             alignment: Alignment.topLeft,
             margin: EdgeInsets.only(left: 15, top: 5, bottom: 5),
-            decoration: BoxDecoration(color: optionColor[index] ? Colors.blue : Colors.white, borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.grey.shade400)),
+            decoration: BoxDecoration(
+                color: optionColor[index] ? Colors.blue : Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: Colors.grey.shade400)),
             child: InkWell(
               onTap: () {
                 print("!");
                 setState(() {
-                  optionColor = List<bool>.generate(widget.snapshot.data!.docs[0]['busesAvailable'].length, (i) => false);
+                  optionColor = List<bool>.generate(
+                      widget.snapshot.data!.docs[0]['busesAvailable'].length,
+                      (i) => false);
                   optionColor[index] = true;
-                  busNo = widget.snapshot.data!.docs[0]['busesAvailable'][index];
+                  busNo =
+                      widget.snapshot.data!.docs[0]['busesAvailable'][index];
                 });
               },
               child: Container(
                 alignment: Alignment.centerLeft,
                 margin: EdgeInsets.only(left: 5),
                 child: Text(
-                  "Bus No. " + widget.snapshot.data!.docs[0]['busesAvailable'][index].toString(),
+                  "Bus No. " +
+                      widget.snapshot.data!.docs[0]['busesAvailable'][index]
+                          .toString(),
                   style: montserrat(optionColor[index] ? Colors.white : black),
                 ),
               ),
