@@ -21,6 +21,7 @@ var optionColor = [];
 
 var log = [];
 var busNo = -1;
+var clearedLogs = false;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -45,6 +46,7 @@ class _HomePageState extends State<HomePage> {
     var serviceEnabled = await Geolocator.isLocationServiceEnabled();
     var permission = await Geolocator.checkPermission();
     log = [];
+
     timer = Timer.periodic(Duration(seconds: 5), (timer) async {
       if (isStarted) {
         await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation).then((Position position) async {
@@ -77,7 +79,6 @@ class _HomePageState extends State<HomePage> {
               d.phoneNumber = phoneNumber;
               d.latitude = currentPosition!.latitude;
               d.longitude = currentPosition!.longitude;
-              d.total = total;
               await model.updateData(d);
               setState(() {});
             }

@@ -18,6 +18,7 @@ class Data {
   late MarkerId marker = MarkerId(busNo.toString());
   double? time = 999999;
   double? collegeReachTime;
+  bool isNearest = false;
   //data goes to cloud in the form of map. so creating a map before is a efficient process
   createMap() {
     return {
@@ -124,7 +125,7 @@ class Data {
                     InkWell(
                       child: Container(
                         height: 50,
-                        margin: const EdgeInsets.only(right: 15, left: 15, bottom: 12.5, top: 15),
+                        margin: const EdgeInsets.only(right: 15, left: 15, bottom: 5.5, top: 15),
                         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.grey.shade400)),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -147,6 +148,88 @@ class Data {
                         await launch("tel:" + phoneNumber);
                       },
                     ),
+                    Divider(
+                      color: Colors.grey.shade300,
+                      thickness: 0.3,
+                    ),
+                    isNearest
+                        ? Container(
+                            margin: const EdgeInsets.only(top: 10),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    height: 50,
+                                    margin: const EdgeInsets.only(left: 15, right: 5),
+                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.grey.shade400)),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.bus_alert_rounded,
+                                          color: foreground,
+                                        ),
+                                        Container(
+                                          margin: const EdgeInsets.only(left: 5),
+                                          child: Text(
+                                            "Bus No." + busNo.toString(),
+                                            style: tt(foreground, h4, FontWeight.w600),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    height: 50,
+                                    margin: const EdgeInsets.only(right: 15, left: 5),
+                                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.grey.shade400)),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.contacts_rounded,
+                                          color: foreground,
+                                        ),
+                                        Container(
+                                          margin: const EdgeInsets.only(left: 5),
+                                          child: Text(
+                                            driverName.split(" ").first,
+                                            style: tt(foreground, h4, FontWeight.w600),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        : Container(),
+                    InkWell(
+                      child: Container(
+                        height: 50,
+                        margin: const EdgeInsets.only(right: 15, left: 15, bottom: 5.5, top: 15),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.grey.shade400)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.call,
+                              color: foreground,
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(left: 5),
+                              child: Text(
+                                phoneNumber,
+                                style: tt(foreground, h4, FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
