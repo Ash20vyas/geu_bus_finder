@@ -131,6 +131,7 @@ class _HomePageState extends State<HomePage> {
 
         var distance = _coordinateDistance(d.latitude, d.longitude, currentPosition.latitude, currentPosition.longitude);
         var dist2 = _coordinateDistance(d.latitude, d.longitude, collegePosition.latitude, collegePosition.longitude);
+
         d.time = (distance / 25) * 60;
         d.collegeReachTime = d.time!.toDouble() + (((dist2) / 25) * 60);
         activeBuses[i] = d;
@@ -160,20 +161,11 @@ class _HomePageState extends State<HomePage> {
         }
       }
 
+      if (activeBuses[0].time < 3) {
+        activeBuses[0].isNearest = true;
+      }
       internetCheck();
     });
-  }
-
-  void internetCheck() async {
-    try {
-      final result = await InternetAddress.lookup('example.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        isFuckingLoading = false;
-        print('connected');
-      }
-    } on SocketException catch (_) {
-      print('not connected');
-    }
   }
 
   @override

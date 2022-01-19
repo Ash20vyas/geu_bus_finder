@@ -7,7 +7,7 @@ class Data {
   late String phoneNumber;
   late double latitude;
   late double longitude;
-  late double total;
+  late bool clearedLogs;
   //data goes to cloud in the form of map. so creating a map before is a efficient process
   createMap() {
     return {
@@ -17,7 +17,6 @@ class Data {
       "phoneNumber": phoneNumber,
       "latitude": latitude,
       "longitude": longitude,
-      "total": total,
     };
   }
 }
@@ -26,6 +25,19 @@ class FirebaseModal {
   FirebaseFirestore instance = FirebaseFirestore.instance;
 
   bool updateData(Data data) {
+    if (clearedLogs == false) {
+      slave() async {
+        var collection = instance.collection("root").doc(data.busNo.toString()).collection("userLocation");
+        var snapshots = await collection.get();
+        for (var doc in snapshots.docs) {
+          await doc.reference.delete();
+        }
+        clearedLogs = true;
+      }
+
+      slave();
+    }
+
     //check our data object has all values before it goes to cloud.
     if (data.driverName == null || data.busNo == null || data.phoneNumber == null) {
       return false;
